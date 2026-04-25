@@ -1,0 +1,41 @@
+{
+  "cases": [
+
+    {
+      "id": "Case_20260418_155022",
+      "title": "Pleural Fluid — 50× Dry",
+      "specimen_type": "Pleural",
+      "magnification": "50×",
+      "grid": "3×3",
+      "date": "2026-04-18",
+      "image": "assets/Case_20260418_155022_composite_trimmed.jpg",
+      "annotations": [],
+      "interpretation": "",
+      "ai_generated": true
+    },
+    {
+      "id": "Case_20260419_141735",
+      "title": "BAL — 50× Dry",
+      "specimen_type": "BAL",
+      "magnification": "50×",
+      "grid": "3×3",
+      "date": "2026-04-19",
+      "image": "assets/Case_20260419_141735_composite_trimmed.jpg",
+      "annotations": [],
+      "interpretation": "",
+      "ai_generated": true
+    },
+    {
+      "id": "Case_20260423_101252",
+      "title": "Synovial Fluid — 50× Dry",
+      "specimen_type": "Synovial",
+      "magnification": "50×",
+      "grid": "5×5",
+      "date": "2026-04-23",
+      "image": "assets/Case_20260423_101252_composite_trimmed.jpg",
+      "annotations": [],
+      "interpretation": "",
+      "ai_generated": true
+    }
+  ]
+}
