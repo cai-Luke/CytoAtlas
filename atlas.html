@@ -1,732 +1,1526 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CytoAtlas — Body Fluid Cytology Reference</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-  :root {
-    --bg:#0e1118;--surface:#1c2133;--surface2:#232a3d;--surface3:#2a3150;
-    --border:#2e3655;--border2:#3a4468;
-    --text:#eef0f6;--text2:#b0b9d4;--text3:#9ba4c0;--text4:#9ba4c0;
-    --accent:#7c9ef8;--accent-dim:#2f4480;--accent-hover:#96b0fa;
-    --green:#4ade80;--green-dim:#14532d;--green-light:rgba(74,222,128,.1);
-    --amber:#fbbf24;--amber-dim:#78350f;
-    --red:#f87171;--red-dim:#7f1d1d;
-    --gold:#f5c842;--gold-dim:#3d2f00;
-    --shadow:0 2px 8px rgba(0,0,0,.4);
-    --shadow-lg:0 12px 40px rgba(0,0,0,.6);
-    --shadow-xl:0 24px 64px rgba(0,0,0,.8);
-    --radius:8px;--radius-lg:12px;--radius-xl:18px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  button,select,input,textarea{color:inherit;font-family:inherit}
-  button{cursor:pointer}
-  html,body{height:100%;overflow:hidden}
-  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CytoAtlas — Body Fluid Cytology Reference</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
-  /* ── WELCOME SCREEN ── */
-  .welcome{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:500;transition:opacity .4s ease}
-  .welcome.hidden{opacity:0;pointer-events:none}
-  .wl-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:18px}
-  .wl-title{font-family:'Instrument Serif',Georgia,serif;font-size:52px;color:var(--text);letter-spacing:-.5px;line-height:1.1;text-align:center;margin-bottom:8px}
-  .wl-title em{font-style:italic;color:var(--accent)}
-  .wl-sub{font-size:15px;color:var(--text3);text-align:center;margin-bottom:48px;max-width:420px;line-height:1.7}
-  .wl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:32px 36px;width:420px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-xl);align-items:center;text-align:center}
-  .wl-loading-spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:8px 0}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .wl-hint{font-size:12px;color:var(--text4);line-height:1.6}
-  .wl-error{font-size:12px;color:var(--red);display:none}
-
-  /* ── APP SHELL ── */
-  .app{display:none;height:100vh;flex-direction:column}
-  .app.visible{display:flex}
-
-  /* ── HEADER ── */
-  .header{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0}
-  .logo-mark{font-family:'Instrument Serif',serif;font-size:17px;color:var(--text);letter-spacing:-.2px;cursor:pointer}
-  .logo-mark em{font-style:italic;color:var(--accent)}
-  .logo-mark:hover em{color:var(--accent-hover)}
-  .logo-sep{width:1px;height:20px;background:var(--border2)}
-  .logo-sub{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.3px}
-  .header-spacer{flex:1}
-  .filter-pills{display:flex;gap:6px;align-items:center}
-  .filter-pill{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;transition:all .15s;white-space:nowrap;font-family:'DM Sans',sans-serif}
-  .filter-pill.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
-  .filter-pill:hover:not(.active){border-color:var(--border2);color:var(--text2)}
-  .stat-pill{font-size:11px;color:var(--text4);padding:0 4px}
-  .author-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,.3);display:none}
-  .author-badge.visible{display:inline-block}
-  .about-btn{padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);border-radius:var(--radius);background:transparent;color:var(--text3);transition:all .15s;font-family:'DM Sans',sans-serif}
-  .about-btn:hover{color:var(--text);border-color:var(--accent)}
-
-  /* ── LAYOUT ── */
-  .body{display:flex;flex:1;overflow:hidden}
-
-  /* ── SIDEBAR ── */
-  .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
-  .sb-section{padding:10px 12px 4px;font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:1.2px}
-  .sb-list{flex:1;overflow-y:auto;padding:4px 8px 12px}
-  .sb-group-label{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.8px;padding:12px 10px 4px}
-  .sb-group-label:first-child{padding-top:4px}
-  .sb-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;transition:all .12s;border:1px solid transparent;margin-bottom:1px}
-  .sb-item:hover{background:var(--surface2)}
-  .sb-item.active{background:var(--accent-dim);border-color:rgba(124,158,248,.2)}
-  .sb-item-name{font-size:12px;font-weight:500;color:var(--text2);flex:1;line-height:1.3}
-  .sb-item.active .sb-item-name{color:var(--accent);font-weight:600}
-  .sb-item-meta{font-size:10px;color:var(--text4);font-family:'DM Mono',monospace}
-  .sb-item.active .sb-item-meta{color:var(--accent)}
-
-  /* ── MAIN AREA ── */
-  .main{flex:1;display:flex;overflow:hidden}
-
-  /* ── VIEWER ── */
-  .viewer-wrap{flex:1;position:relative;background:var(--bg);display:flex;align-items:center;justify-content:center}
-  .viewer-empty{text-align:center;color:var(--text3);font-size:14px;line-height:1.8}
-  .viewer-empty-title{font-family:'Instrument Serif',serif;font-size:26px;color:var(--text);margin-bottom:8px}
-  #osd-viewer{position:absolute;inset:0}
-  .viewer-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(14,17,24,.8);z-index:10;transition:opacity .3s}
-  .viewer-loading.hidden{opacity:0;pointer-events:none}
-  .viewer-loading-inner{display:flex;flex-direction:column;align-items:center;gap:12px}
-
-  /* ── ANNOTATION MARKERS ── */
-  /* Per-annotation color palette — vivid, distinct against biological material */
-  :root {
-    --ann1:#fbbf24; --ann1-glow:rgba(251,191,36,.55);   /* amber  */
-    --ann2:#34d399; --ann2-glow:rgba(52,211,153,.55);   /* emerald */
-    --ann3:#f87171; --ann3-glow:rgba(248,113,113,.55);  /* rose */
-    --ann4:#a78bfa; --ann4-glow:rgba(167,139,250,.55);  /* violet */
-    --ann5:#38bdf8; --ann5-glow:rgba(56,189,248,.55);   /* sky */
-  }
-  .ann-marker{
-    width:40px;height:40px;border-radius:50%;
-    color:#0a0e18;font-size:15px;font-weight:900;letter-spacing:-.3px;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    box-shadow:0 3px 12px rgba(0,0,0,.7),0 0 0 2.5px rgba(255,255,255,.35);
-    transition:transform .15s,box-shadow .15s,filter .15s;
-    transform:translate(-50%,-50%);
-    font-family:'DM Sans',sans-serif;user-select:none;
-    /* Subtle outer ring pulse — makes markers findable on dense slides */
-    outline:2.5px solid rgba(255,255,255,.18);
-    outline-offset:3px;
-  }
-  .ann-marker[data-n="1"]{background:var(--ann1);}
-  .ann-marker[data-n="2"]{background:var(--ann2);}
-  .ann-marker[data-n="3"]{background:var(--ann3);}
-  .ann-marker[data-n="4"]{background:var(--ann4);}
-  .ann-marker[data-n="5"]{background:var(--ann5);}
-  .ann-marker:hover{transform:translate(-50%,-50%) scale(1.22);filter:brightness(1.15);}
-  .ann-marker[data-n="1"]:hover{box-shadow:0 5px 20px var(--ann1-glow),0 0 0 3px rgba(255,255,255,.5)}
-  .ann-marker[data-n="2"]:hover{box-shadow:0 5px 20px var(--ann2-glow),0 0 0 3px rgba(255,255,255,.5)}
-  .ann-marker[data-n="3"]:hover{box-shadow:0 5px 20px var(--ann3-glow),0 0 0 3px rgba(255,255,255,.5)}
-  .ann-marker[data-n="4"]:hover{box-shadow:0 5px 20px var(--ann4-glow),0 0 0 3px rgba(255,255,255,.5)}
-  .ann-marker[data-n="5"]:hover{box-shadow:0 5px 20px var(--ann5-glow),0 0 0 3px rgba(255,255,255,.5)}
-  .ann-marker.active{transform:translate(-50%,-50%) scale(1.28);filter:brightness(1.2);outline-offset:5px;outline-color:rgba(255,255,255,.5)}
-  .ann-marker[data-n="1"].active{box-shadow:0 6px 28px var(--ann1-glow),0 0 0 3.5px rgba(255,255,255,.6)}
-  .ann-marker[data-n="2"].active{box-shadow:0 6px 28px var(--ann2-glow),0 0 0 3.5px rgba(255,255,255,.6)}
-  .ann-marker[data-n="3"].active{box-shadow:0 6px 28px var(--ann3-glow),0 0 0 3.5px rgba(255,255,255,.6)}
-  .ann-marker[data-n="4"].active{box-shadow:0 6px 28px var(--ann4-glow),0 0 0 3.5px rgba(255,255,255,.6)}
-  .ann-marker[data-n="5"].active{box-shadow:0 6px 28px var(--ann5-glow),0 0 0 3.5px rgba(255,255,255,.6)}
-
-  /* ── INFO PANEL ── */
-  .info-panel{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
-  .info-panel.hidden{display:none}
-  .ip-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-  .ip-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--text);letter-spacing:-.2px;margin-bottom:4px}
-  .ip-meta-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .ip-meta-tag{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--surface3);color:var(--text3);border:1px solid var(--border2)}
-  .ip-meta-tag.specimen{background:var(--accent-dim);color:var(--accent);border-color:rgba(124,158,248,.3)}
-  .ip-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:18px}
-  .ip-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text4);margin-bottom:8px}
-  .ip-interp{font-size:13px;color:var(--text2);line-height:1.8;padding:14px 16px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--accent)}
-  .ip-interp.ai-draft{border-left-color:var(--amber)}
-  .ip-ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,.25);border-radius:20px;padding:2px 10px;margin-bottom:8px}
-  .ip-ann-list{display:flex;flex-direction:column;gap:10px}
-  .ip-ann-item{padding:12px 14px;background:var(--surface2);border-radius:var(--radius);cursor:pointer;transition:all .15s;border:1px solid transparent}
-  .ip-ann-item:hover{border-color:var(--border2);background:var(--surface3)}
-  .ip-ann-item.active{border-color:var(--accent);background:var(--accent-dim)}
-  .ip-ann-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:#0a0e18;font-size:11px;font-weight:900;margin-right:8px;flex-shrink:0;vertical-align:middle}
-  .ip-ann-num[data-n="1"]{background:var(--ann1)}
-  .ip-ann-num[data-n="2"]{background:var(--ann2)}
-  .ip-ann-num[data-n="3"]{background:var(--ann3)}
-  .ip-ann-num[data-n="4"]{background:var(--ann4)}
-  .ip-ann-num[data-n="5"]{background:var(--ann5)}
-  .ip-ann-item.active[data-n="1"]{border-color:var(--ann1);background:rgba(251,191,36,.1)}
-  .ip-ann-item.active[data-n="2"]{border-color:var(--ann2);background:rgba(52,211,153,.08)}
-  .ip-ann-item.active[data-n="3"]{border-color:var(--ann3);background:rgba(248,113,113,.08)}
-  .ip-ann-item.active[data-n="4"]{border-color:var(--ann4);background:rgba(167,139,250,.08)}
-  .ip-ann-item.active[data-n="5"]{border-color:var(--ann5);background:rgba(56,189,248,.08)}
-  .ip-ann-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
-  .ip-ann-desc{font-size:12px;color:var(--text3);line-height:1.7}
-  .ip-empty{font-size:12px;color:var(--text4);font-style:italic;padding:12px 0}
-
-  /* ── AUTHOR PANEL ── */
-  .author-panel{border-top:1px solid var(--border);padding:14px 20px;flex-shrink:0;display:none;background:var(--surface2)}
-  .author-panel.visible{display:block}
-  .ap-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--amber);margin-bottom:8px}
-  .ap-row{display:flex;gap:6px;flex-wrap:wrap}
-  .ap-btn{padding:6px 14px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text3);transition:all .15s;font-family:'DM Sans',sans-serif}
-  .ap-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .ap-btn:disabled{opacity:.4;cursor:not-allowed}
-  .ap-btn.primary{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-  .ap-btn.primary:hover{background:var(--accent);color:#0f1117}
-  .ap-status{font-size:11px;color:var(--text4);margin-top:6px;min-height:16px}
-  .ap-key-row{display:flex;gap:6px;margin-bottom:8px}
-  .ap-key-input{flex:1;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-family:'DM Mono',monospace;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
-  .ap-key-input:focus{border-color:var(--accent)}
-
-  /* ── ABOUT MODAL ── */
-  .about-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px}
-  .about-overlay.hidden{display:none!important}
-  .about-panel{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);width:520px;max-width:calc(100vw - 40px);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
-  .about-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-  .about-title{font-family:'Instrument Serif',serif;font-size:20px;color:var(--text)}
-  .about-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text3);transition:all .15s}
-  .about-close:hover{background:var(--surface2);color:var(--text)}
-  .about-body{padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-  .about-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text4);margin-top:8px}
-  .about-text{font-size:13px;color:var(--text2);line-height:1.8}
-  .about-text a{color:var(--accent);text-decoration:none}
-  .about-text a:hover{text-decoration:underline}
-
-  /* ── TOAST ── */
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 20px;font-size:13px;color:var(--text2);box-shadow:var(--shadow-lg);z-index:700;transition:transform .3s ease,opacity .3s;opacity:0;pointer-events:none}
-  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-
-  /* ── OSD NAV OVERRIDES ── */
-  .openseadragon-container{background:var(--bg)!important}
-  .navigator{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:var(--radius)!important;opacity:.85!important}
-  .navigator:hover{opacity:1!important}
-  .displayregion{border:1.5px solid var(--accent)!important}
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js"></script>
-</head>
-<body>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- WELCOME SCREEN                                                         -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<div class="welcome" id="welcome">
-  <div class="wl-eyebrow">Body Fluid Cytology</div>
-  <div class="wl-title">Cyto <em>Atlas</em></div>
-  <div class="wl-sub">A curated virtual slide reference of body fluid cytospin preparations for hematology education.</div>
-  <div class="wl-card">
-    <div class="wl-loading-spinner" id="wl-spinner"></div>
-    <div class="wl-hint" id="wl-hint">Loading case data…</div>
-    <div class="wl-error" id="wl-error"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- APP                                                                    -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<div class="app" id="app">
-
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo-mark" onclick="goHome()">Cyto <em>Atlas</em></div>
-    <div class="logo-sep"></div>
-    <div class="logo-sub">Virtual Slide Reference</div>
-    <div class="header-spacer"></div>
-    <span class="stat-pill" id="stat-total"></span>
-    <div class="filter-pills" id="filter-pills"></div>
-    <div class="author-badge" id="author-badge">Author Mode</div>
-    <button class="about-btn" onclick="openAbout()">ⓘ About</button>
-  </div>
-
-  <!-- BODY -->
-  <div class="body">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sb-section">Cases</div>
-      <div class="sb-list" id="sb-list"></div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main">
-
-      <!-- VIEWER -->
-      <div class="viewer-wrap" id="viewer-wrap">
-        <div class="viewer-empty" id="viewer-empty">
-          <div class="viewer-empty-title">Select a case</div>
-          Choose a case from the sidebar to view the composite virtual slide.
-        </div>
-        <div id="osd-viewer" style="display:none"></div>
-        <div class="viewer-loading hidden" id="viewer-loading">
-          <div class="viewer-loading-inner">
-            <div class="wl-loading-spinner"></div>
-            <div style="font-size:12px;color:var(--text3)">Loading composite…</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- INFO PANEL -->
-      <div class="info-panel hidden" id="info-panel">
-        <div class="ip-header">
-          <div class="ip-title" id="ip-title"></div>
-          <div class="ip-meta-row" id="ip-meta-row"></div>
-        </div>
-        <div class="ip-body" id="ip-body">
-          <!-- Interpretation -->
-          <div>
-            <div class="ip-section-label">Interpretation</div>
-            <div id="ip-ai-badge-wrap" style="display:none">
-              <div class="ip-ai-badge">✦ AI-generated draft — pathologist review pending</div>
-            </div>
-            <div class="ip-interp" id="ip-interp">
-              <span class="ip-empty">No interpretation yet.</span>
-            </div>
-          </div>
-          <!-- Annotations -->
-          <div>
-            <div class="ip-section-label">Regions of Interest</div>
-            <div class="ip-ann-list" id="ip-ann-list">
-              <div class="ip-empty">No annotations yet.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Author panel (only visible in author mode) -->
-        <div class="author-panel" id="author-panel">
-          <div class="ap-label">✦ Author Tools</div>
-          <div class="ap-key-row">
-            <input type="password" class="ap-key-input" id="ap-key" placeholder="Gemini API key" />
-          </div>
-          <div class="ap-row">
-            <button class="ap-btn primary" id="ap-generate" onclick="generateAnnotations()">Generate Annotations</button>
-            <button class="ap-btn" id="ap-reroll" onclick="generateAnnotations()" disabled>Reroll</button>
-            <button class="ap-btn" id="ap-export" onclick="exportCaseJSON()" disabled>Export JSON</button>
-          </div>
-          <div class="ap-status" id="ap-status"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ABOUT MODAL -->
-<div class="about-overlay hidden" id="about-overlay" onclick="if(event.target===this)closeAbout()">
-  <div class="about-panel">
-    <div class="about-header">
-      <div class="about-title">About Cyto<em style="font-style:italic;color:var(--accent)">Atlas</em></div>
-      <button class="about-close" onclick="closeAbout()">&times;</button>
-    </div>
-    <div class="about-body">
-      <div class="about-text">
-        CytoAtlas is a curated virtual slide reference of body fluid cytospin preparations
-        captured with <strong>BenchVision</strong>, a native Android microscopy app built for
-        hematology lab work. Each case is a registered, stitched composite of multiple
-        microscope fields captured through a Samsung Galaxy S25 Ultra mounted on a clinical
-        microscope via a universal clip adapter.
-      </div>
-      <div class="about-section-label">How to Use</div>
-      <div class="about-text">
-        Select a case from the sidebar. Use your mouse wheel or pinch gesture to zoom into
-        the composite slide. Numbered markers highlight regions of diagnostic interest —
-        click a marker or its description to navigate between the two. Filter by specimen
-        type using the pills in the header.
-      </div>
-      <div class="about-section-label">Technology</div>
-      <div class="about-text">
-        Composites are stitched from individually captured tiles using ORB feature matching,
-        pose-graph least-squares alignment, and minimum-cost seam routing. The viewer is
-        powered by <a href="https://openseadragon.github.io/" target="_blank">OpenSeadragon</a>.
-      </div>
-      <div class="about-section-label">Related Projects</div>
-      <div class="about-text">
-        <a href="https://cai-luke.github.io/HemeAtlas" target="_blank">HemeAtlas</a> —
-        Peripheral blood cell morphology reference for medical education.
-      </div>
-      <div class="about-text" style="margin-top:12px;color:var(--text4);font-size:11px">
-        Built by Luke and Claude · Northwell Health · 2026
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- JAVASCRIPT                                                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<script>
-// ─────────────────────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────────────────────
-let CASES = [];
-let SPECIMEN_TYPES = [];
-let activeFilter = 'All';
-let activeCase = null;
-let viewer = null;
-let overlays = [];
-const IS_AUTHOR = new URLSearchParams(location.search).has('author');
-
-// ─────────────────────────────────────────────────────────────────────────
-// Init
-// ─────────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', init);
-
-async function init() {
-  try {
-    const resp = await fetch('cases.json');
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    CASES = data.cases || [];
-    SPECIMEN_TYPES = [...new Set(CASES.map(c => c.specimen_type))].sort();
-
-    if (IS_AUTHOR) {
-      document.getElementById('author-badge').classList.add('visible');
-      const savedKey = localStorage.getItem('cytoatlas_gemini_key');
-      if (savedKey) document.getElementById('ap-key').value = savedKey;
+    :root {
+      --bg: #0e1118;
+      --surface: #1c2133;
+      --surface2: #232a3d;
+      --surface3: #2a3150;
+      --border: #2e3655;
+      --border2: #3a4468;
+      --text: #eef0f6;
+      --text2: #b0b9d4;
+      --text3: #9ba4c0;
+      --text4: #9ba4c0;
+      --accent: #7c9ef8;
+      --accent-dim: #2f4480;
+      --accent-hover: #96b0fa;
+      --green: #4ade80;
+      --green-dim: #14532d;
+      --green-light: rgba(74, 222, 128, .1);
+      --amber: #fbbf24;
+      --amber-dim: #78350f;
+      --red: #f87171;
+      --red-dim: #7f1d1d;
+      --gold: #f5c842;
+      --gold-dim: #3d2f00;
+      --shadow: 0 2px 8px rgba(0, 0, 0, .4);
+      --shadow-lg: 0 12px 40px rgba(0, 0, 0, .6);
+      --shadow-xl: 0 24px 64px rgba(0, 0, 0, .8);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 18px;
     }
 
-    buildFilterPills();
-    buildSidebar();
-    document.getElementById('stat-total').textContent = `${CASES.length} cases`;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-    // Transition to app
-    setTimeout(() => {
-      document.getElementById('welcome').classList.add('hidden');
-      document.getElementById('app').classList.add('visible');
-    }, 600);
+    button,
+    select,
+    input,
+    textarea {
+      color: inherit;
+      font-family: inherit
+    }
 
-  } catch (err) {
-    document.getElementById('wl-spinner').style.display = 'none';
-    document.getElementById('wl-hint').style.display = 'none';
-    const el = document.getElementById('wl-error');
-    el.style.display = 'block';
-    el.textContent = `Failed to load cases.json: ${err.message}`;
-  }
-}
+    button {
+      cursor: pointer
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Filter pills
-// ─────────────────────────────────────────────────────────────────────────
-function buildFilterPills() {
-  const wrap = document.getElementById('filter-pills');
-  wrap.innerHTML = '';
+    html,
+    body {
+      height: 100%;
+      overflow: hidden
+    }
 
-  const allPill = document.createElement('button');
-  allPill.className = 'filter-pill active';
-  allPill.textContent = 'All';
-  allPill.onclick = () => setFilter('All');
-  allPill.id = 'fp-All';
-  wrap.appendChild(allPill);
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5
+    }
 
-  SPECIMEN_TYPES.forEach(st => {
-    const pill = document.createElement('button');
-    pill.className = 'filter-pill';
-    pill.textContent = st;
-    pill.onclick = () => setFilter(st);
-    pill.id = `fp-${st}`;
-    wrap.appendChild(pill);
-  });
-}
+    /* ── WELCOME SCREEN ── */
+    .welcome {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      z-index: 500;
+      transition: opacity .4s ease
+    }
 
-function setFilter(f) {
-  activeFilter = f;
-  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-  document.getElementById(`fp-${f}`).classList.add('active');
-  buildSidebar();
-}
+    .welcome.hidden {
+      opacity: 0;
+      pointer-events: none
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Sidebar
-// ─────────────────────────────────────────────────────────────────────────
-function buildSidebar() {
-  const list = document.getElementById('sb-list');
-  list.innerHTML = '';
+    .wl-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 18px
+    }
 
-  const filtered = activeFilter === 'All'
-    ? CASES
-    : CASES.filter(c => c.specimen_type === activeFilter);
+    .wl-title {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 52px;
+      color: var(--text);
+      letter-spacing: -.5px;
+      line-height: 1.1;
+      text-align: center;
+      margin-bottom: 8px
+    }
 
-  // Group by specimen type
-  const groups = {};
-  filtered.forEach(c => {
-    if (!groups[c.specimen_type]) groups[c.specimen_type] = [];
-    groups[c.specimen_type].push(c);
-  });
+    .wl-title em {
+      font-style: italic;
+      color: var(--accent)
+    }
 
-  Object.keys(groups).sort().forEach(st => {
-    const label = document.createElement('div');
-    label.className = 'sb-group-label';
-    label.textContent = `${st} (${groups[st].length})`;
-    list.appendChild(label);
+    .wl-sub {
+      font-size: 15px;
+      color: var(--text3);
+      text-align: center;
+      margin-bottom: 48px;
+      max-width: 420px;
+      line-height: 1.7
+    }
 
-    groups[st].forEach(c => {
-      const item = document.createElement('div');
-      item.className = 'sb-item' + (activeCase && activeCase.id === c.id ? ' active' : '');
-      item.onclick = () => selectCase(c);
-      item.innerHTML = `
+    .wl-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 32px 36px;
+      width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow-xl);
+      align-items: center;
+      text-align: center
+    }
+
+    .wl-loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 8px 0
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .wl-hint {
+      font-size: 12px;
+      color: var(--text4);
+      line-height: 1.6
+    }
+
+    .wl-error {
+      font-size: 12px;
+      color: var(--red);
+      display: none
+    }
+
+    /* ── APP SHELL ── */
+    .app {
+      display: none;
+      height: 100vh;
+      flex-direction: column
+    }
+
+    .app.visible {
+      display: flex
+    }
+
+    /* ── HEADER ── */
+    .header {
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      flex-shrink: 0
+    }
+
+    .logo-mark {
+      font-family: 'Instrument Serif', serif;
+      font-size: 17px;
+      color: var(--text);
+      letter-spacing: -.2px;
+      cursor: pointer
+    }
+
+    .logo-mark em {
+      font-style: italic;
+      color: var(--accent)
+    }
+
+    .logo-mark:hover em {
+      color: var(--accent-hover)
+    }
+
+    .logo-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border2)
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text3);
+      font-weight: 500;
+      letter-spacing: .3px
+    }
+
+    .header-spacer {
+      flex: 1
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .filter-pill {
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      color: var(--text3);
+      background: transparent;
+      transition: all .15s;
+      white-space: nowrap;
+      font-family: 'DM Sans', sans-serif
+    }
+
+    .filter-pill.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim)
+    }
+
+    .filter-pill:hover:not(.active) {
+      border-color: var(--border2);
+      color: var(--text2)
+    }
+
+    .stat-pill {
+      font-size: 11px;
+      color: var(--text4);
+      padding: 0 4px
+    }
+
+    .author-badge {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      background: var(--amber-dim);
+      color: var(--amber);
+      border: 1px solid rgba(251, 191, 36, .3);
+      display: none
+    }
+
+    .author-badge.visible {
+      display: inline-block
+    }
+
+    .about-btn {
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text3);
+      transition: all .15s;
+      font-family: 'DM Sans', sans-serif
+    }
+
+    .about-btn:hover {
+      color: var(--text);
+      border-color: var(--accent)
+    }
+
+    /* ── LAYOUT ── */
+    .body {
+      display: flex;
+      flex: 1;
+      overflow: hidden
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden
+    }
+
+    .sb-section {
+      padding: 10px 12px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text4);
+      text-transform: uppercase;
+      letter-spacing: 1.2px
+    }
+
+    .sb-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 8px 12px
+    }
+
+    .sb-group-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text4);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      padding: 12px 10px 4px
+    }
+
+    .sb-group-label:first-child {
+      padding-top: 4px
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all .12s;
+      border: 1px solid transparent;
+      margin-bottom: 1px
+    }
+
+    .sb-item:hover {
+      background: var(--surface2)
+    }
+
+    .sb-item.active {
+      background: var(--accent-dim);
+      border-color: rgba(124, 158, 248, .2)
+    }
+
+    .sb-item-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      flex: 1;
+      line-height: 1.3
+    }
+
+    .sb-item.active .sb-item-name {
+      color: var(--accent);
+      font-weight: 600
+    }
+
+    .sb-item-meta {
+      font-size: 10px;
+      color: var(--text4);
+      font-family: 'DM Mono', monospace
+    }
+
+    .sb-item.active .sb-item-meta {
+      color: var(--accent)
+    }
+
+    /* ── MAIN AREA ── */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden
+    }
+
+    /* ── VIEWER ── */
+    .viewer-wrap {
+      flex: 1;
+      position: relative;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .viewer-empty {
+      text-align: center;
+      color: var(--text3);
+      font-size: 14px;
+      line-height: 1.8
+    }
+
+    .viewer-empty-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px;
+      color: var(--text);
+      margin-bottom: 8px
+    }
+
+    #osd-viewer {
+      position: absolute;
+      inset: 0
+    }
+
+    .viewer-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(14, 17, 24, .8);
+      z-index: 10;
+      transition: opacity .3s
+    }
+
+    .viewer-loading.hidden {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .viewer-loading-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px
+    }
+
+    /* ── ANNOTATION MARKERS ── */
+    /* Per-annotation color palette — vivid, distinct against biological material */
+    :root {
+      --ann1: #fbbf24;
+      --ann1-glow: rgba(251, 191, 36, .55);
+      /* amber  */
+      --ann2: #34d399;
+      --ann2-glow: rgba(52, 211, 153, .55);
+      /* emerald */
+      --ann3: #f87171;
+      --ann3-glow: rgba(248, 113, 113, .55);
+      /* rose */
+      --ann4: #a78bfa;
+      --ann4-glow: rgba(167, 139, 250, .55);
+      /* violet */
+      --ann5: #38bdf8;
+      --ann5-glow: rgba(56, 189, 248, .55);
+      /* sky */
+    }
+
+    .ann-marker {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: #0a0e18;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, .7), 0 0 0 2.5px rgba(255, 255, 255, .35);
+      transition: transform .15s, box-shadow .15s, filter .15s;
+      transform: translate(-50%, -50%);
+      font-family: 'DM Sans', sans-serif;
+      user-select: none;
+      /* Subtle outer ring pulse — makes markers findable on dense slides */
+      outline: 2.5px solid rgba(255, 255, 255, .18);
+      outline-offset: 3px;
+    }
+
+    .ann-marker[data-n="1"] {
+      background: var(--ann1);
+    }
+
+    .ann-marker[data-n="2"] {
+      background: var(--ann2);
+    }
+
+    .ann-marker[data-n="3"] {
+      background: var(--ann3);
+    }
+
+    .ann-marker[data-n="4"] {
+      background: var(--ann4);
+    }
+
+    .ann-marker[data-n="5"] {
+      background: var(--ann5);
+    }
+
+    .ann-marker:hover {
+      transform: translate(-50%, -50%) scale(1.22);
+      filter: brightness(1.15);
+    }
+
+    .ann-marker[data-n="1"]:hover {
+      box-shadow: 0 5px 20px var(--ann1-glow), 0 0 0 3px rgba(255, 255, 255, .5)
+    }
+
+    .ann-marker[data-n="2"]:hover {
+      box-shadow: 0 5px 20px var(--ann2-glow), 0 0 0 3px rgba(255, 255, 255, .5)
+    }
+
+    .ann-marker[data-n="3"]:hover {
+      box-shadow: 0 5px 20px var(--ann3-glow), 0 0 0 3px rgba(255, 255, 255, .5)
+    }
+
+    .ann-marker[data-n="4"]:hover {
+      box-shadow: 0 5px 20px var(--ann4-glow), 0 0 0 3px rgba(255, 255, 255, .5)
+    }
+
+    .ann-marker[data-n="5"]:hover {
+      box-shadow: 0 5px 20px var(--ann5-glow), 0 0 0 3px rgba(255, 255, 255, .5)
+    }
+
+    .ann-marker.active {
+      transform: translate(-50%, -50%) scale(1.28);
+      filter: brightness(1.2);
+      outline-offset: 5px;
+      outline-color: rgba(255, 255, 255, .5)
+    }
+
+    .ann-marker[data-n="1"].active {
+      box-shadow: 0 6px 28px var(--ann1-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
+    }
+
+    .ann-marker[data-n="2"].active {
+      box-shadow: 0 6px 28px var(--ann2-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
+    }
+
+    .ann-marker[data-n="3"].active {
+      box-shadow: 0 6px 28px var(--ann3-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
+    }
+
+    .ann-marker[data-n="4"].active {
+      box-shadow: 0 6px 28px var(--ann4-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
+    }
+
+    .ann-marker[data-n="5"].active {
+      box-shadow: 0 6px 28px var(--ann5-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
+    }
+
+    /* ── INFO PANEL ── */
+    .info-panel {
+      width: 340px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .info-panel.hidden {
+      display: none
+    }
+
+    .ip-header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .ip-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      color: var(--text);
+      letter-spacing: -.2px;
+      margin-bottom: 4px
+    }
+
+    .ip-meta-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px
+    }
+
+    .ip-meta-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 20px;
+      background: var(--surface3);
+      color: var(--text3);
+      border: 1px solid var(--border2)
+    }
+
+    .ip-meta-tag.specimen {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: rgba(124, 158, 248, .3)
+    }
+
+    .ip-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px
+    }
+
+    .ip-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text4);
+      margin-bottom: 8px
+    }
+
+    .ip-interp {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.8;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      border-left: 3px solid var(--accent)
+    }
+
+    .ip-interp.ai-draft {
+      border-left-color: var(--amber)
+    }
+
+    .ip-ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--amber);
+      background: var(--amber-dim);
+      border: 1px solid rgba(251, 191, 36, .25);
+      border-radius: 20px;
+      padding: 2px 10px;
+      margin-bottom: 8px
+    }
+
+    .ip-ann-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .ip-ann-item {
+      padding: 12px 14px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all .15s;
+      border: 1px solid transparent
+    }
+
+    .ip-ann-item:hover {
+      border-color: var(--border2);
+      background: var(--surface3)
+    }
+
+    .ip-ann-item.active {
+      border-color: var(--accent);
+      background: var(--accent-dim)
+    }
+
+    .ip-ann-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      color: #0a0e18;
+      font-size: 11px;
+      font-weight: 900;
+      margin-right: 8px;
+      flex-shrink: 0;
+      vertical-align: middle
+    }
+
+    .ip-ann-num[data-n="1"] {
+      background: var(--ann1)
+    }
+
+    .ip-ann-num[data-n="2"] {
+      background: var(--ann2)
+    }
+
+    .ip-ann-num[data-n="3"] {
+      background: var(--ann3)
+    }
+
+    .ip-ann-num[data-n="4"] {
+      background: var(--ann4)
+    }
+
+    .ip-ann-num[data-n="5"] {
+      background: var(--ann5)
+    }
+
+    .ip-ann-item.active[data-n="1"] {
+      border-color: var(--ann1);
+      background: rgba(251, 191, 36, .1)
+    }
+
+    .ip-ann-item.active[data-n="2"] {
+      border-color: var(--ann2);
+      background: rgba(52, 211, 153, .08)
+    }
+
+    .ip-ann-item.active[data-n="3"] {
+      border-color: var(--ann3);
+      background: rgba(248, 113, 113, .08)
+    }
+
+    .ip-ann-item.active[data-n="4"] {
+      border-color: var(--ann4);
+      background: rgba(167, 139, 250, .08)
+    }
+
+    .ip-ann-item.active[data-n="5"] {
+      border-color: var(--ann5);
+      background: rgba(56, 189, 248, .08)
+    }
+
+    .ip-ann-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px
+    }
+
+    .ip-ann-desc {
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.7
+    }
+
+    .ip-empty {
+      font-size: 12px;
+      color: var(--text4);
+      font-style: italic;
+      padding: 12px 0
+    }
+
+    /* ── AUTHOR PANEL ── */
+    .author-panel {
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      flex-shrink: 0;
+      display: none;
+      background: var(--surface2)
+    }
+
+    .author-panel.visible {
+      display: block
+    }
+
+    .ap-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--amber);
+      margin-bottom: 8px
+    }
+
+    .ap-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap
+    }
+
+    .ap-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text3);
+      transition: all .15s;
+      font-family: 'DM Sans', sans-serif
+    }
+
+    .ap-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    .ap-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed
+    }
+
+    .ap-btn.primary {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    .ap-btn.primary:hover {
+      background: var(--accent);
+      color: #0f1117
+    }
+
+    .ap-status {
+      font-size: 11px;
+      color: var(--text4);
+      margin-top: 6px;
+      min-height: 16px
+    }
+
+    .ap-key-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px
+    }
+
+    .ap-key-input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color .15s
+    }
+
+    .ap-key-input:focus {
+      border-color: var(--accent)
+    }
+
+    /* ── ABOUT MODAL ── */
+    .about-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .7);
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px
+    }
+
+    .about-overlay.hidden {
+      display: none !important
+    }
+
+    .about-panel {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      width: 520px;
+      max-width: calc(100vw - 40px);
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    .about-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0
+    }
+
+    .about-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      color: var(--text)
+    }
+
+    .about-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border2);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text3);
+      transition: all .15s
+    }
+
+    .about-close:hover {
+      background: var(--surface2);
+      color: var(--text)
+    }
+
+    .about-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px
+    }
+
+    .about-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text4);
+      margin-top: 8px
+    }
+
+    .about-text {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.8
+    }
+
+    .about-text a {
+      color: var(--accent);
+      text-decoration: none
+    }
+
+    .about-text a:hover {
+      text-decoration: underline
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--text2);
+      box-shadow: var(--shadow-lg);
+      z-index: 700;
+      transition: transform .3s ease, opacity .3s;
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1
+    }
+
+    /* ── OSD NAV OVERRIDES ── */
+    .openseadragon-container {
+      background: var(--bg) !important
+    }
+
+    .navigator {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      opacity: .85 !important
+    }
+
+    .navigator:hover {
+      opacity: 1 !important
+    }
+
+    .displayregion {
+      border: 1.5px solid var(--accent) !important
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js"></script>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- WELCOME SCREEN                                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="welcome" id="welcome">
+    <div class="wl-eyebrow">Body Fluid Cytology</div>
+    <div class="wl-title">Cyto <em>Atlas</em></div>
+    <div class="wl-sub">A curated virtual slide reference of body fluid cytospin preparations for hematology education.
+    </div>
+    <div class="wl-card">
+      <div class="wl-loading-spinner" id="wl-spinner"></div>
+      <div class="wl-hint" id="wl-hint">Loading case data…</div>
+      <div class="wl-error" id="wl-error"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- APP                                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="app" id="app">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo-mark" onclick="goHome()">Cyto <em>Atlas</em></div>
+      <div class="logo-sep"></div>
+      <div class="logo-sub">Virtual Slide Reference</div>
+      <div class="header-spacer"></div>
+      <span class="stat-pill" id="stat-total"></span>
+      <div class="filter-pills" id="filter-pills"></div>
+      <div class="author-badge" id="author-badge">Author Mode</div>
+      <button class="about-btn" onclick="openAbout()">ⓘ About</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sb-section">Cases</div>
+        <div class="sb-list" id="sb-list"></div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="main">
+
+        <!-- VIEWER -->
+        <div class="viewer-wrap" id="viewer-wrap">
+          <div class="viewer-empty" id="viewer-empty">
+            <div class="viewer-empty-title">Select a case</div>
+            Choose a case from the sidebar to view the composite virtual slide.
+          </div>
+          <div id="osd-viewer" style="display:none"></div>
+          <div class="viewer-loading hidden" id="viewer-loading">
+            <div class="viewer-loading-inner">
+              <div class="wl-loading-spinner"></div>
+              <div style="font-size:12px;color:var(--text3)">Loading composite…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO PANEL -->
+        <div class="info-panel hidden" id="info-panel">
+          <div class="ip-header">
+            <div class="ip-title" id="ip-title"></div>
+            <div class="ip-meta-row" id="ip-meta-row"></div>
+          </div>
+          <div class="ip-body" id="ip-body">
+            <!-- Interpretation -->
+            <div>
+              <div class="ip-section-label">Interpretation</div>
+              <div id="ip-ai-badge-wrap" style="display:none">
+                <div class="ip-ai-badge">✦ AI-generated draft — pathologist review pending</div>
+              </div>
+              <div class="ip-interp" id="ip-interp">
+                <span class="ip-empty">No interpretation yet.</span>
+              </div>
+            </div>
+            <!-- Annotations -->
+            <div>
+              <div class="ip-section-label">Regions of Interest</div>
+              <div class="ip-ann-list" id="ip-ann-list">
+                <div class="ip-empty">No annotations yet.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Author panel (only visible in author mode) -->
+          <div class="author-panel" id="author-panel">
+            <div class="ap-label">✦ Author Tools</div>
+            <div class="ap-key-row">
+              <input type="password" class="ap-key-input" id="ap-key" placeholder="Gemini API key" />
+            </div>
+            <div class="ap-row">
+              <button class="ap-btn primary" id="ap-generate" onclick="generateAnnotations()">Generate
+                Annotations</button>
+              <button class="ap-btn" id="ap-reroll" onclick="generateAnnotations()" disabled>Reroll</button>
+              <button class="ap-btn" id="ap-export" onclick="exportCaseJSON()" disabled>Export JSON</button>
+            </div>
+            <div class="ap-status" id="ap-status"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div class="about-overlay hidden" id="about-overlay" onclick="if(event.target===this)closeAbout()">
+    <div class="about-panel">
+      <div class="about-header">
+        <div class="about-title">About Cyto<em style="font-style:italic;color:var(--accent)">Atlas</em></div>
+        <button class="about-close" onclick="closeAbout()">&times;</button>
+      </div>
+      <div class="about-body">
+        <div class="about-text">
+          CytoAtlas is a curated virtual slide reference of body fluid cytospin preparations
+          captured with <strong>BenchVision</strong>, a native Android microscopy app built for
+          hematology lab work. Each case is a registered, stitched composite of multiple
+          microscope fields captured through a Samsung Galaxy S25 Ultra mounted on a clinical
+          microscope via a universal clip adapter.
+        </div>
+        <div class="about-section-label">How to Use</div>
+        <div class="about-text">
+          Select a case from the sidebar. Use your mouse wheel or pinch gesture to zoom into
+          the composite slide. Numbered markers highlight regions of diagnostic interest —
+          click a marker or its description to navigate between the two. Filter by specimen
+          type using the pills in the header.
+        </div>
+        <div class="about-section-label">Technology</div>
+        <div class="about-text">
+          Composites are stitched from individually captured tiles using ORB feature matching,
+          pose-graph least-squares alignment, and minimum-cost seam routing. The viewer is
+          powered by <a href="https://openseadragon.github.io/" target="_blank">OpenSeadragon</a>.
+        </div>
+        <div class="about-section-label">Related Projects</div>
+        <div class="about-text">
+          <a href="https://cai-luke.github.io/HemeAtlas" target="_blank">HemeAtlas</a> —
+          Peripheral blood cell morphology reference for medical education.
+        </div>
+        <div class="about-text" style="margin-top:12px;color:var(--text4);font-size:11px">
+          Built by Luke and Claude · 2026
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- JAVASCRIPT                                                             -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <script>
+    // ─────────────────────────────────────────────────────────────────────────
+    // State
+    // ─────────────────────────────────────────────────────────────────────────
+    let CASES = [];
+    let SPECIMEN_TYPES = [];
+    let activeFilter = 'All';
+    let activeCase = null;
+    let viewer = null;
+    let overlays = [];
+    const IS_AUTHOR = new URLSearchParams(location.search).has('author');
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Init
+    // ─────────────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      try {
+        const resp = await fetch('cases.json');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        CASES = data.cases || [];
+        SPECIMEN_TYPES = [...new Set(CASES.map(c => c.specimen_type))].sort();
+
+        if (IS_AUTHOR) {
+          document.getElementById('author-badge').classList.add('visible');
+          const savedKey = localStorage.getItem('cytoatlas_gemini_key');
+          if (savedKey) document.getElementById('ap-key').value = savedKey;
+        }
+
+        buildFilterPills();
+        buildSidebar();
+        document.getElementById('stat-total').textContent = `${CASES.length} cases`;
+
+        // Transition to app
+        setTimeout(() => {
+          document.getElementById('welcome').classList.add('hidden');
+          document.getElementById('app').classList.add('visible');
+        }, 600);
+
+      } catch (err) {
+        document.getElementById('wl-spinner').style.display = 'none';
+        document.getElementById('wl-hint').style.display = 'none';
+        const el = document.getElementById('wl-error');
+        el.style.display = 'block';
+        el.textContent = `Failed to load cases.json: ${err.message}`;
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Filter pills
+    // ─────────────────────────────────────────────────────────────────────────
+    function buildFilterPills() {
+      const wrap = document.getElementById('filter-pills');
+      wrap.innerHTML = '';
+
+      const allPill = document.createElement('button');
+      allPill.className = 'filter-pill active';
+      allPill.textContent = 'All';
+      allPill.onclick = () => setFilter('All');
+      allPill.id = 'fp-All';
+      wrap.appendChild(allPill);
+
+      SPECIMEN_TYPES.forEach(st => {
+        const pill = document.createElement('button');
+        pill.className = 'filter-pill';
+        pill.textContent = st;
+        pill.onclick = () => setFilter(st);
+        pill.id = `fp-${st}`;
+        wrap.appendChild(pill);
+      });
+    }
+
+    function setFilter(f) {
+      activeFilter = f;
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      document.getElementById(`fp-${f}`).classList.add('active');
+      buildSidebar();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sidebar
+    // ─────────────────────────────────────────────────────────────────────────
+    function buildSidebar() {
+      const list = document.getElementById('sb-list');
+      list.innerHTML = '';
+
+      const filtered = activeFilter === 'All'
+        ? CASES
+        : CASES.filter(c => c.specimen_type === activeFilter);
+
+      // Group by specimen type
+      const groups = {};
+      filtered.forEach(c => {
+        if (!groups[c.specimen_type]) groups[c.specimen_type] = [];
+        groups[c.specimen_type].push(c);
+      });
+
+      Object.keys(groups).sort().forEach(st => {
+        const label = document.createElement('div');
+        label.className = 'sb-group-label';
+        label.textContent = `${st} (${groups[st].length})`;
+        list.appendChild(label);
+
+        groups[st].forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'sb-item' + (activeCase && activeCase.id === c.id ? ' active' : '');
+          item.onclick = () => selectCase(c);
+          item.innerHTML = `
         <div class="sb-item-name">${c.title}</div>
         <div class="sb-item-meta">${c.grid}</div>
       `;
-      list.appendChild(item);
-    });
-  });
-}
+          list.appendChild(item);
+        });
+      });
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Case selection
-// ─────────────────────────────────────────────────────────────────────────
-function selectCase(c) {
-  activeCase = c;
-  buildSidebar();
-  showInfoPanel(c);
-  loadViewer(c);
-}
+    // ─────────────────────────────────────────────────────────────────────────
+    // Case selection
+    // ─────────────────────────────────────────────────────────────────────────
+    function selectCase(c) {
+      activeCase = c;
+      buildSidebar();
+      showInfoPanel(c);
+      loadViewer(c);
+    }
 
-function goHome() {
-  activeCase = null;
-  buildSidebar();
-  hideViewer();
-  document.getElementById('info-panel').classList.add('hidden');
-  document.getElementById('viewer-empty').style.display = '';
-}
+    function goHome() {
+      activeCase = null;
+      buildSidebar();
+      hideViewer();
+      document.getElementById('info-panel').classList.add('hidden');
+      document.getElementById('viewer-empty').style.display = '';
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Info panel
-// ─────────────────────────────────────────────────────────────────────────
-function showInfoPanel(c) {
-  const panel = document.getElementById('info-panel');
-  panel.classList.remove('hidden');
+    // ─────────────────────────────────────────────────────────────────────────
+    // Info panel
+    // ─────────────────────────────────────────────────────────────────────────
+    function showInfoPanel(c) {
+      const panel = document.getElementById('info-panel');
+      panel.classList.remove('hidden');
 
-  document.getElementById('ip-title').textContent = c.title;
+      document.getElementById('ip-title').textContent = c.title;
 
-  // Meta tags
-  const metaRow = document.getElementById('ip-meta-row');
-  metaRow.innerHTML = '';
-  [
-    { text: c.specimen_type, cls: 'specimen' },
-    { text: c.magnification },
-    { text: c.grid + ' grid' },
-    { text: c.date }
-  ].forEach(t => {
-    const tag = document.createElement('span');
-    tag.className = 'ip-meta-tag' + (t.cls ? ` ${t.cls}` : '');
-    tag.textContent = t.text;
-    metaRow.appendChild(tag);
-  });
+      // Meta tags
+      const metaRow = document.getElementById('ip-meta-row');
+      metaRow.innerHTML = '';
+      [
+        { text: c.specimen_type, cls: 'specimen' },
+        { text: c.magnification },
+        { text: c.grid + ' grid' },
+        { text: c.date }
+      ].forEach(t => {
+        const tag = document.createElement('span');
+        tag.className = 'ip-meta-tag' + (t.cls ? ` ${t.cls}` : '');
+        tag.textContent = t.text;
+        metaRow.appendChild(tag);
+      });
 
-  // Interpretation
-  const interpEl = document.getElementById('ip-interp');
-  const aiBadge = document.getElementById('ip-ai-badge-wrap');
-  if (c.interpretation && c.interpretation.trim()) {
-    interpEl.innerHTML = c.interpretation;
-    interpEl.classList.toggle('ai-draft', !!c.ai_generated);
-    aiBadge.style.display = c.ai_generated ? '' : 'none';
-  } else {
-    interpEl.innerHTML = '<span class="ip-empty">No interpretation yet.</span>';
-    interpEl.classList.remove('ai-draft');
-    aiBadge.style.display = 'none';
-  }
+      // Interpretation
+      const interpEl = document.getElementById('ip-interp');
+      const aiBadge = document.getElementById('ip-ai-badge-wrap');
+      if (c.interpretation && c.interpretation.trim()) {
+        interpEl.innerHTML = c.interpretation;
+        interpEl.classList.toggle('ai-draft', !!c.ai_generated);
+        aiBadge.style.display = c.ai_generated ? '' : 'none';
+      } else {
+        interpEl.innerHTML = '<span class="ip-empty">No interpretation yet.</span>';
+        interpEl.classList.remove('ai-draft');
+        aiBadge.style.display = 'none';
+      }
 
-  // Annotations
-  renderAnnotationList(c);
+      // Annotations
+      renderAnnotationList(c);
 
-  // Author panel
-  const ap = document.getElementById('author-panel');
-  if (IS_AUTHOR) {
-    ap.classList.add('visible');
-    document.getElementById('ap-reroll').disabled = !c.annotations || c.annotations.length === 0;
-    document.getElementById('ap-export').disabled = !c.annotations || c.annotations.length === 0;
-    document.getElementById('ap-status').textContent = '';
-  } else {
-    ap.classList.remove('visible');
-  }
-}
+      // Author panel
+      const ap = document.getElementById('author-panel');
+      if (IS_AUTHOR) {
+        ap.classList.add('visible');
+        document.getElementById('ap-reroll').disabled = !c.annotations || c.annotations.length === 0;
+        document.getElementById('ap-export').disabled = !c.annotations || c.annotations.length === 0;
+        document.getElementById('ap-status').textContent = '';
+      } else {
+        ap.classList.remove('visible');
+      }
+    }
 
-function renderAnnotationList(c) {
-  const list = document.getElementById('ip-ann-list');
-  if (!c.annotations || c.annotations.length === 0) {
-    list.innerHTML = '<div class="ip-empty">No annotations yet.</div>';
-    return;
-  }
-  list.innerHTML = '';
-  c.annotations.forEach((ann, i) => {
-    const item = document.createElement('div');
-    item.className = 'ip-ann-item';
-    item.dataset.idx = i;
-    item.dataset.n = i + 1;
-    item.onclick = () => panToAnnotation(i);
-    item.innerHTML = `
+    function renderAnnotationList(c) {
+      const list = document.getElementById('ip-ann-list');
+      if (!c.annotations || c.annotations.length === 0) {
+        list.innerHTML = '<div class="ip-empty">No annotations yet.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      c.annotations.forEach((ann, i) => {
+        const item = document.createElement('div');
+        item.className = 'ip-ann-item';
+        item.dataset.idx = i;
+        item.dataset.n = i + 1;
+        item.onclick = () => panToAnnotation(i);
+        item.innerHTML = `
       <div class="ip-ann-label"><span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>${ann.label}</div>
       <div class="ip-ann-desc">${ann.description || ''}</div>
     `;
-    list.appendChild(item);
-  });
-}
+        list.appendChild(item);
+      });
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Viewer
-// ─────────────────────────────────────────────────────────────────────────
-function loadViewer(c) {
-  document.getElementById('viewer-empty').style.display = 'none';
-  const osd = document.getElementById('osd-viewer');
-  osd.style.display = 'block';
+    // ─────────────────────────────────────────────────────────────────────────
+    // Viewer
+    // ─────────────────────────────────────────────────────────────────────────
+    function loadViewer(c) {
+      document.getElementById('viewer-empty').style.display = 'none';
+      const osd = document.getElementById('osd-viewer');
+      osd.style.display = 'block';
 
-  const loading = document.getElementById('viewer-loading');
-  loading.classList.remove('hidden');
+      const loading = document.getElementById('viewer-loading');
+      loading.classList.remove('hidden');
 
-  // Destroy previous viewer
-  if (viewer) {
-    viewer.destroy();
-    viewer = null;
-  }
-  overlays = [];
+      // Destroy previous viewer
+      if (viewer) {
+        viewer.destroy();
+        viewer = null;
+      }
+      overlays = [];
 
-  viewer = OpenSeadragon({
-    id: 'osd-viewer',
-    prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/',
-    tileSources: { type: 'image', url: c.image },
-    showNavigator: true,
-    navigatorPosition: 'BOTTOM_RIGHT',
-    navigatorSizeRatio: 0.15,
-    minZoomLevel: 0.5,
-    maxZoomLevel: 20,
-    visibilityRatio: 0.5,
-    constrainDuringPan: false,
-    animationTime: 0.4,
-    gestureSettingsMouse: { scrollToZoom: true, clickToZoom: false, dblClickToZoom: true },
-    gestureSettingsTouch: { pinchToZoom: true, dblClickToZoom: true },
-    showZoomControl: false,
-    showHomeControl: false,
-    showFullPageControl: false
-  });
+      viewer = OpenSeadragon({
+        id: 'osd-viewer',
+        prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/',
+        tileSources: { type: 'image', url: c.image },
+        showNavigator: true,
+        navigatorPosition: 'BOTTOM_RIGHT',
+        navigatorSizeRatio: 0.15,
+        minZoomLevel: 0.5,
+        maxZoomLevel: 20,
+        visibilityRatio: 0.5,
+        constrainDuringPan: false,
+        animationTime: 0.4,
+        gestureSettingsMouse: { scrollToZoom: true, clickToZoom: false, dblClickToZoom: true },
+        gestureSettingsTouch: { pinchToZoom: true, dblClickToZoom: true },
+        showZoomControl: false,
+        showHomeControl: false,
+        showFullPageControl: false
+      });
 
-  viewer.addHandler('open', () => {
-    loading.classList.add('hidden');
-    addAnnotationOverlays(c);
-  });
+      viewer.addHandler('open', () => {
+        loading.classList.add('hidden');
+        addAnnotationOverlays(c);
+      });
 
-  viewer.addHandler('open-failed', () => {
-    loading.querySelector('div:last-child').textContent = 'Failed to load image';
-  });
-}
+      viewer.addHandler('open-failed', () => {
+        loading.querySelector('div:last-child').textContent = 'Failed to load image';
+      });
+    }
 
-function hideViewer() {
-  if (viewer) { viewer.destroy(); viewer = null; }
-  overlays = [];
-  document.getElementById('osd-viewer').style.display = 'none';
-  document.getElementById('viewer-loading').classList.add('hidden');
-}
+    function hideViewer() {
+      if (viewer) { viewer.destroy(); viewer = null; }
+      overlays = [];
+      document.getElementById('osd-viewer').style.display = 'none';
+      document.getElementById('viewer-loading').classList.add('hidden');
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Annotation overlays
-// ─────────────────────────────────────────────────────────────────────────
-function addAnnotationOverlays(c) {
-  if (!viewer || !c.annotations || c.annotations.length === 0) return;
-  clearOverlays();
+    // ─────────────────────────────────────────────────────────────────────────
+    // Annotation overlays
+    // ─────────────────────────────────────────────────────────────────────────
+    function addAnnotationOverlays(c) {
+      if (!viewer || !c.annotations || c.annotations.length === 0) return;
+      clearOverlays();
 
-  const tiledImage = viewer.world.getItemAt(0);
-  const size = tiledImage.getContentSize();
+      const tiledImage = viewer.world.getItemAt(0);
+      const size = tiledImage.getContentSize();
 
-  c.annotations.forEach((ann, i) => {
-    const el = document.createElement('div');
-    el.className = 'ann-marker';
-    el.dataset.n = i + 1;
-    el.textContent = i + 1;
-    el.onclick = (e) => { e.stopPropagation(); highlightAnnotation(i); };
+      c.annotations.forEach((ann, i) => {
+        const el = document.createElement('div');
+        el.className = 'ann-marker';
+        el.dataset.n = i + 1;
+        el.textContent = i + 1;
+        el.onclick = (e) => { e.stopPropagation(); highlightAnnotation(i); };
 
-    const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
-    const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
+        const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
+        const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
 
-    viewer.addOverlay({ element: el, location: vpPt, placement: OpenSeadragon.Placement.CENTER });
-    overlays.push(el);
-  });
-}
+        viewer.addOverlay({ element: el, location: vpPt, placement: OpenSeadragon.Placement.CENTER });
+        overlays.push(el);
+      });
+    }
 
-function clearOverlays() {
-  overlays.forEach(el => {
-    try { viewer.removeOverlay(el); } catch(e) {}
-  });
-  overlays = [];
-}
+    function clearOverlays() {
+      overlays.forEach(el => {
+        try { viewer.removeOverlay(el); } catch (e) { }
+      });
+      overlays = [];
+    }
 
-function highlightAnnotation(idx) {
-  // Highlight marker
-  overlays.forEach((el, i) => el.classList.toggle('active', i === idx));
+    function highlightAnnotation(idx) {
+      // Highlight marker
+      overlays.forEach((el, i) => el.classList.toggle('active', i === idx));
 
-  // Highlight list item
-  document.querySelectorAll('.ip-ann-item').forEach((el, i) => {
-    el.classList.toggle('active', i === idx);
-    if (i === idx) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-}
+      // Highlight list item
+      document.querySelectorAll('.ip-ann-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+        if (i === idx) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
 
-function panToAnnotation(idx) {
-  if (!viewer || !activeCase || !activeCase.annotations[idx]) return;
-  highlightAnnotation(idx);
+    function panToAnnotation(idx) {
+      if (!viewer || !activeCase || !activeCase.annotations[idx]) return;
+      highlightAnnotation(idx);
 
-  const ann = activeCase.annotations[idx];
-  const tiledImage = viewer.world.getItemAt(0);
-  const size = tiledImage.getContentSize();
-  const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
-  const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
+      const ann = activeCase.annotations[idx];
+      const tiledImage = viewer.world.getItemAt(0);
+      const size = tiledImage.getContentSize();
+      const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
+      const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
 
-  viewer.viewport.panTo(vpPt, false);
-  viewer.viewport.zoomTo(4, vpPt, false);
-}
+      viewer.viewport.panTo(vpPt, false);
+      viewer.viewport.zoomTo(4, vpPt, false);
+    }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Author mode — Gemini annotation generation
-// ─────────────────────────────────────────────────────────────────────────
-async function generateAnnotations() {
-  if (!activeCase || !viewer) return;
+    // ─────────────────────────────────────────────────────────────────────────
+    // Author mode — Gemini annotation generation
+    // ─────────────────────────────────────────────────────────────────────────
+    async function generateAnnotations() {
+      if (!activeCase || !viewer) return;
 
-  const apiKey = document.getElementById('ap-key').value.trim();
-  if (!apiKey) { showToast('Enter a Gemini API key'); return; }
-  localStorage.setItem('cytoatlas_gemini_key', apiKey);
+      const apiKey = document.getElementById('ap-key').value.trim();
+      if (!apiKey) { showToast('Enter a Gemini API key'); return; }
+      localStorage.setItem('cytoatlas_gemini_key', apiKey);
 
-  const statusEl = document.getElementById('ap-status');
-  const genBtn = document.getElementById('ap-generate');
-  const rerollBtn = document.getElementById('ap-reroll');
+      const statusEl = document.getElementById('ap-status');
+      const genBtn = document.getElementById('ap-generate');
+      const rerollBtn = document.getElementById('ap-reroll');
 
-  genBtn.disabled = true;
-  rerollBtn.disabled = true;
-  statusEl.textContent = 'Capturing composite for analysis…';
+      genBtn.disabled = true;
+      rerollBtn.disabled = true;
+      statusEl.textContent = 'Capturing composite for analysis…';
 
-  try {
-    // Get composite image as base64 (downscale for API efficiency)
-    const base64 = await getCompositeBase64();
-    statusEl.textContent = 'Sending to Gemini 3.1 Pro…';
+      try {
+        // Get composite image as base64 (downscale for API efficiency)
+        const base64 = await getCompositeBase64();
+        statusEl.textContent = 'Sending to Gemini 3.1 Pro…';
 
-    const prompt = buildAnnotationPrompt(activeCase);
-    const response = await callGemini(apiKey, base64, prompt);
-    const parsed = parseGeminiResponse(response);
+        const prompt = buildAnnotationPrompt(activeCase);
+        const response = await callGemini(apiKey, base64, prompt);
+        const parsed = parseGeminiResponse(response);
 
-    // Apply to active case
-    activeCase.annotations = parsed.annotations;
-    activeCase.interpretation = parsed.interpretation;
-    activeCase.ai_generated = true;
+        // Apply to active case
+        activeCase.annotations = parsed.annotations;
+        activeCase.interpretation = parsed.interpretation;
+        activeCase.ai_generated = true;
 
-    // Re-render
-    showInfoPanel(activeCase);
-    clearOverlays();
-    addAnnotationOverlays(activeCase);
+        // Re-render
+        showInfoPanel(activeCase);
+        clearOverlays();
+        addAnnotationOverlays(activeCase);
 
-    statusEl.textContent = `✓ Generated ${parsed.annotations.length} annotations`;
-    rerollBtn.disabled = false;
-    document.getElementById('ap-export').disabled = false;
+        statusEl.textContent = `✓ Generated ${parsed.annotations.length} annotations`;
+        rerollBtn.disabled = false;
+        document.getElementById('ap-export').disabled = false;
 
-  } catch (err) {
-    statusEl.textContent = `✗ Error: ${err.message}`;
-  } finally {
-    genBtn.disabled = false;
-  }
-}
+      } catch (err) {
+        statusEl.textContent = `✗ Error: ${err.message}`;
+      } finally {
+        genBtn.disabled = false;
+      }
+    }
 
-function buildAnnotationPrompt(c) {
-  return `You are a board-certified hematopathologist reviewing a body fluid cytospin preparation.
+    function buildAnnotationPrompt(c) {
+      return `You are a board-certified hematopathologist reviewing a body fluid cytospin preparation.
 
 Specimen type: ${c.specimen_type}
 Magnification: ${c.magnification}
-Grid size: ${c.grid} (stitched composite of ${c.grid.replace('×','*').split('*').reduce((a,b)=>a*b)} tiles)
+Grid size: ${c.grid} (stitched composite of ${c.grid.replace('×', '*').split('*').reduce((a, b) => a * b)} tiles)
 
 This image is a registered, stitched composite of multiple microscope fields from a Wright-Giemsa stained cytospin. Analyze the composite and:
 
@@ -747,131 +1541,132 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown fences, no preamble. Use th
   ],
   "interpretation": "Overall case interpretation paragraph here."
 }`;
-}
-
-async function getCompositeBase64() {
-  // Fetch the composite image and convert to base64
-  // Use the original image URL from the case data
-  const resp = await fetch(activeCase.image);
-  const blob = await resp.blob();
-
-  // Downscale to ~2000px wide for API efficiency
-  const bmp = await createImageBitmap(blob);
-  const scale = Math.min(1, 2000 / bmp.width);
-  const w = Math.round(bmp.width * scale);
-  const h = Math.round(bmp.height * scale);
-
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(bmp, 0, 0, w, h);
-
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-  return dataUrl.split(',')[1]; // strip data:image/jpeg;base64,
-}
-
-async function callGemini(apiKey, base64Image, prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${apiKey}`;
-
-  const body = {
-    contents: [{
-      parts: [
-        { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
-        { text: prompt }
-      ]
-    }],
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 2048
     }
-  };
 
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
+    async function getCompositeBase64() {
+      // Fetch the composite image and convert to base64
+      // Use the original image URL from the case data
+      const resp = await fetch(activeCase.image);
+      const blob = await resp.blob();
 
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error(`Gemini API ${resp.status}: ${err.slice(0, 200)}`);
-  }
+      // Downscale to ~2000px wide for API efficiency
+      const bmp = await createImageBitmap(blob);
+      const scale = Math.min(1, 2000 / bmp.width);
+      const w = Math.round(bmp.width * scale);
+      const h = Math.round(bmp.height * scale);
 
-  return await resp.json();
-}
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(bmp, 0, 0, w, h);
 
-function parseGeminiResponse(resp) {
-  // Extract text from Gemini response
-  const textParts = resp.candidates?.[0]?.content?.parts || [];
-  let text = textParts.map(p => p.text || '').join('');
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      return dataUrl.split(',')[1]; // strip data:image/jpeg;base64,
+    }
 
-  // Strip markdown fences if present
-  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    async function callGemini(apiKey, base64Image, prompt) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${apiKey}`;
 
-  const parsed = JSON.parse(text);
+      const body = {
+        contents: [{
+          parts: [
+            { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
+            { text: prompt }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048
+        }
+      };
 
-  // Validate and clamp coordinates
-  if (!parsed.annotations || !Array.isArray(parsed.annotations)) {
-    throw new Error('Response missing annotations array');
-  }
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
 
-  parsed.annotations = parsed.annotations.slice(0, 5).map(a => ({
-    x: Math.max(0, Math.min(1, Number(a.x) || 0.5)),
-    y: Math.max(0, Math.min(1, Number(a.y) || 0.5)),
-    label: String(a.label || 'Unlabeled'),
-    description: String(a.description || '')
-  }));
+      if (!resp.ok) {
+        const err = await resp.text();
+        throw new Error(`Gemini API ${resp.status}: ${err.slice(0, 200)}`);
+      }
 
-  parsed.interpretation = String(parsed.interpretation || '');
+      return await resp.json();
+    }
 
-  return parsed;
-}
+    function parseGeminiResponse(resp) {
+      // Extract text from Gemini response
+      const textParts = resp.candidates?.[0]?.content?.parts || [];
+      let text = textParts.map(p => p.text || '').join('');
 
-// ─────────────────────────────────────────────────────────────────────────
-// Export
-// ─────────────────────────────────────────────────────────────────────────
-function exportCaseJSON() {
-  if (!activeCase) return;
+      // Strip markdown fences if present
+      text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
 
-  const exportObj = {
-    id: activeCase.id,
-    title: activeCase.title,
-    specimen_type: activeCase.specimen_type,
-    magnification: activeCase.magnification,
-    grid: activeCase.grid,
-    date: activeCase.date,
-    image: activeCase.image,
-    annotations: activeCase.annotations,
-    interpretation: activeCase.interpretation,
-    ai_generated: activeCase.ai_generated
-  };
+      const parsed = JSON.parse(text);
 
-  const json = JSON.stringify(exportObj, null, 2);
-  navigator.clipboard.writeText(json).then(() => {
-    showToast('Case JSON copied to clipboard');
-  }).catch(() => {
-    // Fallback: show in a prompt
-    prompt('Copy this JSON:', json);
-  });
-}
+      // Validate and clamp coordinates
+      if (!parsed.annotations || !Array.isArray(parsed.annotations)) {
+        throw new Error('Response missing annotations array');
+      }
 
-// ─────────────────────────────────────────────────────────────────────────
-// About modal
-// ─────────────────────────────────────────────────────────────────────────
-function openAbout() { document.getElementById('about-overlay').classList.remove('hidden'); }
-function closeAbout() { document.getElementById('about-overlay').classList.add('hidden'); }
+      parsed.annotations = parsed.annotations.slice(0, 5).map(a => ({
+        x: Math.max(0, Math.min(1, Number(a.x) || 0.5)),
+        y: Math.max(0, Math.min(1, Number(a.y) || 0.5)),
+        label: String(a.label || 'Unlabeled'),
+        description: String(a.description || '')
+      }));
 
-// ─────────────────────────────────────────────────────────────────────────
-// Toast
-// ─────────────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), 2500);
-}
-</script>
+      parsed.interpretation = String(parsed.interpretation || '');
+
+      return parsed;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Export
+    // ─────────────────────────────────────────────────────────────────────────
+    function exportCaseJSON() {
+      if (!activeCase) return;
+
+      const exportObj = {
+        id: activeCase.id,
+        title: activeCase.title,
+        specimen_type: activeCase.specimen_type,
+        magnification: activeCase.magnification,
+        grid: activeCase.grid,
+        date: activeCase.date,
+        image: activeCase.image,
+        annotations: activeCase.annotations,
+        interpretation: activeCase.interpretation,
+        ai_generated: activeCase.ai_generated
+      };
+
+      const json = JSON.stringify(exportObj, null, 2);
+      navigator.clipboard.writeText(json).then(() => {
+        showToast('Case JSON copied to clipboard');
+      }).catch(() => {
+        // Fallback: show in a prompt
+        prompt('Copy this JSON:', json);
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // About modal
+    // ─────────────────────────────────────────────────────────────────────────
+    function openAbout() { document.getElementById('about-overlay').classList.remove('hidden'); }
+    function closeAbout() { document.getElementById('about-overlay').classList.add('hidden'); }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Toast
+    // ─────────────────────────────────────────────────────────────────────────
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 2500);
+    }
+  </script>
 </body>
+
 </html>
