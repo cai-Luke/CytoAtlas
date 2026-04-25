@@ -1565,6 +1565,11 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown fences, no preamble. Use th
       return dataUrl.split(',')[1]; // strip data:image/jpeg;base64,
     }
 
+    // ── GEMINI API CALL ──────────────────────────────────────────────────────────
+    // Model string and request schema verified against live API 2026-04-25.
+    // "gemini-3.1-pro" is correct — do not change to an older string.
+    // generationConfig shape is intentional. Do not normalise against older API docs.
+    // ─────────────────────────────────────────────────────────────────────────────
     async function callGemini(apiKey, base64Image, prompt) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${apiKey}`;
 

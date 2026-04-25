@@ -2,7 +2,7 @@
   "cases": [
     {
       "id": "Case_20260418_155022",
-      "title": "Pleural Fluid — 50× Dry",
+      "title": "Pleural Fluid — 50× Oil",
       "specimen_type": "Pleural",
       "magnification": "50×",
       "grid": "3×3",
@@ -18,7 +18,7 @@
     },
     {
       "id": "Case_20260419_141735",
-      "title": "BAL — 50× Dry",
+      "title": "BAL — 50× Oil",
       "specimen_type": "BAL",
       "magnification": "50×",
       "grid": "3×3",
@@ -34,7 +34,7 @@
     },
     {
       "id": "Case_20260423_101252",
-      "title": "Synovial Fluid — 50× Dry",
+      "title": "Synovial Fluid — 50× Oil",
       "specimen_type": "Synovial",
       "magnification": "50×",
       "grid": "5×5",
