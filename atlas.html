@@ -463,98 +463,65 @@
       /* sky */
     }
 
+    /* ── ANNOTATION MARKERS — pin style ── */
     .ann-marker {
-      width: 40px;
-      height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      /* translate(-50%, -100%) anchors the pin tip (bottom-center) to the coordinate */
+      transform: translate(-50%, -100%);
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .65));
+      transition: filter .15s, transform .15s;
+      user-select: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .ann-badge {
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      color: #0a0e18;
-      font-size: 15px;
-      font-weight: 900;
-      letter-spacing: -.3px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, .7), 0 0 0 2.5px rgba(255, 255, 255, .35);
-      transition: transform .15s, box-shadow .15s, filter .15s;
-      transform: translate(-50%, -50%);
-      font-family: 'DM Sans', sans-serif;
-      user-select: none;
-      /* Subtle outer ring pulse — makes markers findable on dense slides */
-      outline: 2.5px solid rgba(255, 255, 255, .18);
-      outline-offset: 3px;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      color: #0a0e18;
     }
 
-    .ann-marker[data-n="1"] {
-      background: var(--ann1);
+    .ann-tip {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      /* border-top-color set per data-n below */
+      border-top-width: 7px;
+      border-top-style: solid;
     }
 
-    .ann-marker[data-n="2"] {
-      background: var(--ann2);
-    }
+    /* Per-annotation colors */
+    .ann-marker[data-n="1"] .ann-badge { background: var(--ann1); }
+    .ann-marker[data-n="2"] .ann-badge { background: var(--ann2); }
+    .ann-marker[data-n="3"] .ann-badge { background: var(--ann3); }
+    .ann-marker[data-n="4"] .ann-badge { background: var(--ann4); }
+    .ann-marker[data-n="5"] .ann-badge { background: var(--ann5); }
 
-    .ann-marker[data-n="3"] {
-      background: var(--ann3);
-    }
+    .ann-marker[data-n="1"] .ann-tip { border-top-color: var(--ann1); }
+    .ann-marker[data-n="2"] .ann-tip { border-top-color: var(--ann2); }
+    .ann-marker[data-n="3"] .ann-tip { border-top-color: var(--ann3); }
+    .ann-marker[data-n="4"] .ann-tip { border-top-color: var(--ann4); }
+    .ann-marker[data-n="5"] .ann-tip { border-top-color: var(--ann5); }
 
-    .ann-marker[data-n="4"] {
-      background: var(--ann4);
-    }
-
-    .ann-marker[data-n="5"] {
-      background: var(--ann5);
-    }
-
+    /* Hover: subtle brightness lift — no scale, no glow rings */
     .ann-marker:hover {
-      transform: translate(-50%, -50%) scale(1.22);
-      filter: brightness(1.15);
+      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, .75)) brightness(1.1);
     }
 
-    .ann-marker[data-n="1"]:hover {
-      box-shadow: 0 5px 20px var(--ann1-glow), 0 0 0 3px rgba(255, 255, 255, .5)
-    }
-
-    .ann-marker[data-n="2"]:hover {
-      box-shadow: 0 5px 20px var(--ann2-glow), 0 0 0 3px rgba(255, 255, 255, .5)
-    }
-
-    .ann-marker[data-n="3"]:hover {
-      box-shadow: 0 5px 20px var(--ann3-glow), 0 0 0 3px rgba(255, 255, 255, .5)
-    }
-
-    .ann-marker[data-n="4"]:hover {
-      box-shadow: 0 5px 20px var(--ann4-glow), 0 0 0 3px rgba(255, 255, 255, .5)
-    }
-
-    .ann-marker[data-n="5"]:hover {
-      box-shadow: 0 5px 20px var(--ann5-glow), 0 0 0 3px rgba(255, 255, 255, .5)
-    }
-
+    /* Active: lift pin 3 px upward + stronger shadow */
     .ann-marker.active {
-      transform: translate(-50%, -50%) scale(1.28);
-      filter: brightness(1.2);
-      outline-offset: 5px;
-      outline-color: rgba(255, 255, 255, .5)
-    }
-
-    .ann-marker[data-n="1"].active {
-      box-shadow: 0 6px 28px var(--ann1-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
-    }
-
-    .ann-marker[data-n="2"].active {
-      box-shadow: 0 6px 28px var(--ann2-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
-    }
-
-    .ann-marker[data-n="3"].active {
-      box-shadow: 0 6px 28px var(--ann3-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
-    }
-
-    .ann-marker[data-n="4"].active {
-      box-shadow: 0 6px 28px var(--ann4-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
-    }
-
-    .ann-marker[data-n="5"].active {
-      box-shadow: 0 6px 28px var(--ann5-glow), 0 0 0 3.5px rgba(255, 255, 255, .6)
+      transform: translate(-50%, -100%) translateY(-3px);
+      filter: drop-shadow(0 5px 14px rgba(0, 0, 0, .85)) brightness(1.15);
     }
 
     /* ── INFO PANEL ── */
@@ -690,6 +657,7 @@
       color: #0a0e18;
       font-size: 11px;
       font-weight: 900;
+      line-height: 1;
       margin-right: 8px;
       flex-shrink: 0;
       vertical-align: middle
@@ -1424,13 +1392,13 @@
         const el = document.createElement('div');
         el.className = 'ann-marker';
         el.dataset.n = i + 1;
-        el.textContent = i + 1;
+        el.innerHTML = `<div class="ann-badge">${i + 1}</div><div class="ann-tip"></div>`;
         el.onclick = (e) => { e.stopPropagation(); highlightAnnotation(i); };
 
         const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
         const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
 
-        viewer.addOverlay({ element: el, location: vpPt, placement: OpenSeadragon.Placement.CENTER });
+        viewer.addOverlay({ element: el, location: vpPt, placement: OpenSeadragon.Placement.BOTTOM });
         overlays.push(el);
       });
     }
