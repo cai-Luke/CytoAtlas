@@ -91,9 +91,44 @@
   .viewer-loading-inner{display:flex;flex-direction:column;align-items:center;gap:12px}
 
   /* ── ANNOTATION MARKERS ── */
-  .ann-marker{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#0f1117;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 2px rgba(255,255,255,.3);transition:transform .15s,box-shadow .15s;transform:translate(-50%,-50%);font-family:'DM Sans',sans-serif;user-select:none}
-  .ann-marker:hover{transform:translate(-50%,-50%) scale(1.2);box-shadow:0 4px 16px rgba(124,158,248,.5),0 0 0 3px rgba(255,255,255,.5)}
-  .ann-marker.active{background:var(--accent-hover);transform:translate(-50%,-50%) scale(1.25);box-shadow:0 4px 20px rgba(124,158,248,.6),0 0 0 3px rgba(255,255,255,.6)}
+  /* Per-annotation color palette — vivid, distinct against biological material */
+  :root {
+    --ann1:#fbbf24; --ann1-glow:rgba(251,191,36,.55);   /* amber  */
+    --ann2:#34d399; --ann2-glow:rgba(52,211,153,.55);   /* emerald */
+    --ann3:#f87171; --ann3-glow:rgba(248,113,113,.55);  /* rose */
+    --ann4:#a78bfa; --ann4-glow:rgba(167,139,250,.55);  /* violet */
+    --ann5:#38bdf8; --ann5-glow:rgba(56,189,248,.55);   /* sky */
+  }
+  .ann-marker{
+    width:40px;height:40px;border-radius:50%;
+    color:#0a0e18;font-size:15px;font-weight:900;letter-spacing:-.3px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    box-shadow:0 3px 12px rgba(0,0,0,.7),0 0 0 2.5px rgba(255,255,255,.35);
+    transition:transform .15s,box-shadow .15s,filter .15s;
+    transform:translate(-50%,-50%);
+    font-family:'DM Sans',sans-serif;user-select:none;
+    /* Subtle outer ring pulse — makes markers findable on dense slides */
+    outline:2.5px solid rgba(255,255,255,.18);
+    outline-offset:3px;
+  }
+  .ann-marker[data-n="1"]{background:var(--ann1);}
+  .ann-marker[data-n="2"]{background:var(--ann2);}
+  .ann-marker[data-n="3"]{background:var(--ann3);}
+  .ann-marker[data-n="4"]{background:var(--ann4);}
+  .ann-marker[data-n="5"]{background:var(--ann5);}
+  .ann-marker:hover{transform:translate(-50%,-50%) scale(1.22);filter:brightness(1.15);}
+  .ann-marker[data-n="1"]:hover{box-shadow:0 5px 20px var(--ann1-glow),0 0 0 3px rgba(255,255,255,.5)}
+  .ann-marker[data-n="2"]:hover{box-shadow:0 5px 20px var(--ann2-glow),0 0 0 3px rgba(255,255,255,.5)}
+  .ann-marker[data-n="3"]:hover{box-shadow:0 5px 20px var(--ann3-glow),0 0 0 3px rgba(255,255,255,.5)}
+  .ann-marker[data-n="4"]:hover{box-shadow:0 5px 20px var(--ann4-glow),0 0 0 3px rgba(255,255,255,.5)}
+  .ann-marker[data-n="5"]:hover{box-shadow:0 5px 20px var(--ann5-glow),0 0 0 3px rgba(255,255,255,.5)}
+  .ann-marker.active{transform:translate(-50%,-50%) scale(1.28);filter:brightness(1.2);outline-offset:5px;outline-color:rgba(255,255,255,.5)}
+  .ann-marker[data-n="1"].active{box-shadow:0 6px 28px var(--ann1-glow),0 0 0 3.5px rgba(255,255,255,.6)}
+  .ann-marker[data-n="2"].active{box-shadow:0 6px 28px var(--ann2-glow),0 0 0 3.5px rgba(255,255,255,.6)}
+  .ann-marker[data-n="3"].active{box-shadow:0 6px 28px var(--ann3-glow),0 0 0 3.5px rgba(255,255,255,.6)}
+  .ann-marker[data-n="4"].active{box-shadow:0 6px 28px var(--ann4-glow),0 0 0 3.5px rgba(255,255,255,.6)}
+  .ann-marker[data-n="5"].active{box-shadow:0 6px 28px var(--ann5-glow),0 0 0 3.5px rgba(255,255,255,.6)}
 
   /* ── INFO PANEL ── */
   .info-panel{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
@@ -112,7 +147,17 @@
   .ip-ann-item{padding:12px 14px;background:var(--surface2);border-radius:var(--radius);cursor:pointer;transition:all .15s;border:1px solid transparent}
   .ip-ann-item:hover{border-color:var(--border2);background:var(--surface3)}
   .ip-ann-item.active{border-color:var(--accent);background:var(--accent-dim)}
-  .ip-ann-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#0f1117;font-size:11px;font-weight:800;margin-right:8px;flex-shrink:0;vertical-align:middle}
+  .ip-ann-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:#0a0e18;font-size:11px;font-weight:900;margin-right:8px;flex-shrink:0;vertical-align:middle}
+  .ip-ann-num[data-n="1"]{background:var(--ann1)}
+  .ip-ann-num[data-n="2"]{background:var(--ann2)}
+  .ip-ann-num[data-n="3"]{background:var(--ann3)}
+  .ip-ann-num[data-n="4"]{background:var(--ann4)}
+  .ip-ann-num[data-n="5"]{background:var(--ann5)}
+  .ip-ann-item.active[data-n="1"]{border-color:var(--ann1);background:rgba(251,191,36,.1)}
+  .ip-ann-item.active[data-n="2"]{border-color:var(--ann2);background:rgba(52,211,153,.08)}
+  .ip-ann-item.active[data-n="3"]{border-color:var(--ann3);background:rgba(248,113,113,.08)}
+  .ip-ann-item.active[data-n="4"]{border-color:var(--ann4);background:rgba(167,139,250,.08)}
+  .ip-ann-item.active[data-n="5"]{border-color:var(--ann5);background:rgba(56,189,248,.08)}
   .ip-ann-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
   .ip-ann-desc{font-size:12px;color:var(--text3);line-height:1.7}
   .ip-empty{font-size:12px;color:var(--text4);font-style:italic;padding:12px 0}
@@ -507,9 +552,10 @@ function renderAnnotationList(c) {
     const item = document.createElement('div');
     item.className = 'ip-ann-item';
     item.dataset.idx = i;
+    item.dataset.n = i + 1;
     item.onclick = () => panToAnnotation(i);
     item.innerHTML = `
-      <div class="ip-ann-label"><span class="ip-ann-num">${i + 1}</span>${ann.label}</div>
+      <div class="ip-ann-label"><span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>${ann.label}</div>
       <div class="ip-ann-desc">${ann.description || ''}</div>
     `;
     list.appendChild(item);
@@ -583,6 +629,7 @@ function addAnnotationOverlays(c) {
   c.annotations.forEach((ann, i) => {
     const el = document.createElement('div');
     el.className = 'ann-marker';
+    el.dataset.n = i + 1;
     el.textContent = i + 1;
     el.onclick = (e) => { e.stopPropagation(); highlightAnnotation(i); };
 
