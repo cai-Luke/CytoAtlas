@@ -8,8 +8,12 @@
       "grid": "3×3",
       "date": "2026-04-18",
       "image": "assets/Case_20260418_155022_composite_trimmed.jpg",
-      "annotations": [],
-      "interpretation": "",
+      "annotations": [
+        {"x": 0.22, "y": 0.65, "label": "Large multinucleated cell (mesothelial/macrophage)"},
+        {"x": 0.83, "y": 0.48, "label": "Prominent large cell cluster"},
+        {"x": 0.30, "y": 0.25, "label": "Large nucleated cell"}
+      ],
+      "interpretation": "This pleural fluid cytospin is highly cellular, featuring a mixed inflammatory background rich in small mature lymphocytes, scattered neutrophils, and numerous red blood cells. Of particular note are several very large, prominent cells with abundant, deeply basophilic cytoplasm and large, sometimes multiple, nuclei. These likely represent reactive mesothelial cells or macrophages, though in a clinical setting, correlation with patient history and potentially further studies would be warranted to exclude a neoplastic process. The overall picture suggests a marked inflammatory or reactive effusion.",
       "ai_generated": true
     },
     {
@@ -20,8 +24,12 @@
       "grid": "3×3",
       "date": "2026-04-19",
       "image": "assets/Case_20260419_141735_composite_trimmed.jpg",
-      "annotations": [],
-      "interpretation": "",
+      "annotations": [
+        {"x": 0.68, "y": 0.55, "label": "Mucus strand infiltrated with neutrophils"},
+        {"x": 0.88, "y": 0.08, "label": "Vacuolated alveolar macrophage"},
+        {"x": 0.35, "y": 0.21, "label": "Alveolar macrophage"}
+      ],
+      "interpretation": "This bronchoalveolar lavage (BAL) specimen demonstrates a background of scattered red blood cells and mixed inflammatory cells. The most striking feature is a large, amorphous collection of pale, basophilic material consistent with mucus, which is densely infiltrated by numerous polymorphonuclear leukocytes (neutrophils). Scattered throughout the field are several large, vacuolated mononuclear cells characteristic of alveolar macrophages. The presence of abundant mucus and a neutrophilic infiltrate is suggestive of an acute inflammatory process, such as an infection or marked airway irritation.",
       "ai_generated": true
     },
     {
@@ -32,8 +40,12 @@
       "grid": "5×5",
       "date": "2026-04-23",
       "image": "assets/Case_20260423_101252_composite_trimmed.jpg",
-      "annotations": [],
-      "interpretation": "",
+      "annotations": [
+        {"x": 0.15, "y": 0.85, "label": "Dense aggregate of degenerating neutrophils"},
+        {"x": 0.75, "y": 0.45, "label": "Area of dense neutrophilic infiltrate"},
+        {"x": 0.61, "y": 0.78, "label": "Possible macrophage amidst neutrophils"}
+      ],
+      "interpretation": "This synovial fluid cytospin is markedly hypercellular, overwhelmingly dominated by polymorphonuclear leukocytes (neutrophils). The neutrophils are densely packed, with many displaying evidence of degeneration and pyknotic nuclei. A granular, lightly basophilic background is present, likely representing proteinaceous material and cellular debris from neutrophil breakdown. The extreme neutrophilic pleocytosis and presence of degenerative changes are highly characteristic of an acute, purulent inflammatory process, such as septic arthritis or a severe crystal-induced arthropathy.",
       "ai_generated": true
     }
   ]
