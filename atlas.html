@@ -384,6 +384,105 @@
       color: var(--accent)
     }
 
+    /* ── SIDEBAR TOGGLE BUTTON ── */
+    .sb-toggle {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4.5px;
+      width: 32px;
+      height: 32px;
+      padding: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: var(--radius);
+      flex-shrink: 0;
+      transition: background .12s;
+    }
+
+    .sb-toggle:hover {
+      background: var(--surface2);
+    }
+
+    .sb-toggle span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: var(--text3);
+      border-radius: 2px;
+      transition: background .12s;
+    }
+
+    .sb-toggle:hover span {
+      background: var(--text);
+    }
+
+    /* ── SIDEBAR BACKDROP (tablet/mobile only) ── */
+    .sb-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      z-index: 49;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+
+    .sb-backdrop.active {
+      opacity: 1;
+    }
+
+    /* ── DESKTOP: inline collapse via width transition ── */
+    @media (min-width: 1024px) {
+      .sidebar {
+        transition: width .22s ease, border-color .22s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 0;
+        border-right-color: transparent;
+      }
+
+      .sidebar.collapsed .sb-section,
+      .sidebar.collapsed .sb-list {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    /* ── TABLET / MOBILE: overlay drawer ── */
+    @media (max-width: 1023px) {
+      .sidebar {
+        position: fixed;
+        top: 52px;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        width: 220px;
+        border-right-color: var(--border);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sb-backdrop {
+        display: block;
+        top: 52px;
+      }
+    }
+
+    /* ── HIDE filter pills and stat on very small screens ── */
+    @media (max-width: 599px) {
+      .stat-pill { display: none; }
+      .filter-pills { display: none; }
+      .logo-sub { display: none; }
+      .logo-sep { display: none; }
+    }
+
     /* ── MAIN AREA ── */
     .main {
       flex: 1;
@@ -469,8 +568,6 @@
       flex-direction: column;
       align-items: center;
       cursor: pointer;
-      /* translate(-50%, -100%) anchors the pin tip (bottom-center) to the coordinate */
-      transform: translate(-50%, -100%);
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .65));
       transition: filter .15s, transform .15s;
       user-select: none;
@@ -491,6 +588,7 @@
     }
 
     .ann-tip {
+      box-sizing: content-box;
       width: 0;
       height: 0;
       border-left: 5px solid transparent;
@@ -520,7 +618,7 @@
 
     /* Active: lift pin 3 px upward + stronger shadow */
     .ann-marker.active {
-      transform: translate(-50%, -100%) translateY(-3px);
+      transform: translateY(-3px);
       filter: drop-shadow(0 5px 14px rgba(0, 0, 0, .85)) brightness(1.15);
     }
 
@@ -987,6 +1085,9 @@
 
     <!-- HEADER -->
     <div class="header">
+      <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" aria-label="Toggle case list">
+        <span></span><span></span><span></span>
+      </button>
       <div class="logo-mark" onclick="goHome()">Cyto <em>Atlas</em></div>
       <div class="logo-sep"></div>
       <div class="logo-sub">Virtual Slide Reference</div>
@@ -999,9 +1100,10 @@
 
     <!-- BODY -->
     <div class="body">
+      <div class="sb-backdrop" id="sb-backdrop" onclick="closeSidebar()"></div>
 
       <!-- SIDEBAR -->
-      <div class="sidebar">
+      <div class="sidebar" id="sidebar">
         <div class="sb-section">Cases</div>
         <div class="sb-list" id="sb-list"></div>
       </div>
@@ -1237,6 +1339,7 @@
     // Case selection
     // ─────────────────────────────────────────────────────────────────────────
     function selectCase(c) {
+      if (isOverlayMode()) closeSidebar();
       activeCase = c;
       buildSidebar();
       showInfoPanel(c);
@@ -1249,6 +1352,36 @@
       hideViewer();
       document.getElementById('info-panel').classList.add('hidden');
       document.getElementById('viewer-empty').style.display = '';
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sidebar collapse / drawer
+    // ─────────────────────────────────────────────────────────────────────────
+    function isOverlayMode() {
+      return window.innerWidth < 1024;
+    }
+
+    function toggleSidebar() {
+      if (isOverlayMode()) {
+        const isOpen = document.getElementById('sidebar').classList.contains('open');
+        isOpen ? closeSidebar() : openSidebar();
+      } else {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+      }
+    }
+
+    function openSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sb-backdrop');
+      sb.classList.add('open');
+      bd.classList.add('active');
+    }
+
+    function closeSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sb-backdrop');
+      sb.classList.remove('open');
+      bd.classList.remove('active');
     }
 
     // ─────────────────────────────────────────────────────────────────────────
