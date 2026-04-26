@@ -318,13 +318,44 @@
       font-weight: 700;
       color: var(--text4);
       text-transform: uppercase;
-      letter-spacing: 1.2px
+      letter-spacing: 1.2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .sb-section-label {
+      transition: opacity .15s
+    }
+
+    .sb-collapse-btn {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text4);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color .12s, border-color .12s;
+      padding: 0
+    }
+
+    .sb-collapse-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent)
     }
 
     .sb-list {
       flex: 1;
       overflow-y: auto;
-      padding: 4px 8px 12px
+      padding: 4px 8px 12px;
+      transition: opacity .15s
     }
 
     .sb-group-label {
@@ -436,18 +467,25 @@
     /* ── DESKTOP: inline collapse via width transition ── */
     @media (min-width: 1024px) {
       .sidebar {
-        transition: width .22s ease, border-color .22s ease;
+        transition: width .2s ease;
+      }
+
+      .sb-collapse-btn {
+        display: flex;
       }
 
       .sidebar.collapsed {
-        width: 0;
-        border-right-color: transparent;
+        width: 36px;
       }
 
-      .sidebar.collapsed .sb-section,
+      .sidebar.collapsed .sb-section-label,
       .sidebar.collapsed .sb-list {
         opacity: 0;
         pointer-events: none;
+      }
+
+      .sidebar.collapsed .sb-section {
+        justify-content: center;
       }
     }
 
@@ -1218,7 +1256,10 @@
 
       <!-- SIDEBAR -->
       <div class="sidebar" id="sidebar">
-        <div class="sb-section">Cases</div>
+        <div class="sb-section">
+          <span class="sb-section-label">Cases</span>
+          <button class="sb-collapse-btn" id="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">‹</button>
+        </div>
         <div class="sb-list" id="sb-list"></div>
       </div>
 
@@ -1484,7 +1525,14 @@
         const isOpen = document.getElementById('sidebar').classList.contains('open');
         isOpen ? closeSidebar() : openSidebar();
       } else {
-        document.getElementById('sidebar').classList.toggle('collapsed');
+        const sb = document.getElementById('sidebar');
+        const btn = document.getElementById('sb-collapse-btn');
+        sb.classList.toggle('collapsed');
+        const isCollapsed = sb.classList.contains('collapsed');
+        if (btn) {
+          btn.textContent = isCollapsed ? '›' : '‹';
+          btn.title = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+        }
       }
     }
 
