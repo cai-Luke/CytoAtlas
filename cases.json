@@ -1,6 +1,22 @@
 {
   "cases": [
     {
+      "id": "Case_20260415_161024",
+      "title": "BAL — 100× Oil",
+      "specimen_type": "BAL",
+      "magnification": "100×",
+      "grid": "3×3",
+      "date": "2026-04-15",
+      "image": "assets/Case_20260415_161024_composite_trimmed.jpg",
+      "annotations": [
+        {"x": 0.50, "y": 0.185, "label": "Mucus/Debris"},
+        {"x": 0.365, "y": 0.510, "label": "Neutrophil"},
+        {"x": 0.33, "y": 0.84, "label": "Alveolar Macrophage"}
+      ],
+      "interpretation": "This Bronchoalveolar Lavage (BAL) sample demonstrates a cellular profile dominated by alveolar macrophages, which exhibit characteristic foamy cytoplasm and eccentric nuclei, consistent with normal clearance of inhaled material. Scattered neutrophils are present, suggesting a mild inflammatory response, but there is no evidence of acute bacterial pneumonia or significant eosinophilia. The background contains moderate amounts of mucinous debris and proteinaceous material, which is typical for a BAL specimen. No malignant cells or fungal elements are identified in this field.",
+      "ai_generated": true
+    },
+    {
       "id": "Case_20260418_155022",
       "title": "Pleural Fluid — 50× Oil",
       "specimen_type": "Pleural",
