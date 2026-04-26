@@ -562,65 +562,77 @@
       /* sky */
     }
 
-    /* ── ANNOTATION MARKERS — pin style ── */
+    /* ── ANNOTATION MARKERS — bounding box style ── */
+
+    /*
+      OSD manages the position and size of the overlay element when a Rect is passed
+      as the location. The element fills the rect exactly in screen space. We style it
+      as a colored border box with a tinted fill and an outboard number chip.
+    */
     .ann-marker {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      position: relative;
+      width: 100%;
+      height: 100%;
       cursor: pointer;
-      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .65));
-      transition: filter .15s, transform .15s;
-      user-select: none;
-      font-family: 'DM Sans', sans-serif;
+      box-sizing: border-box;
+      border-width: 1.5px;
+      border-style: solid;
+      transition: border-color .15s, background .15s, filter .15s;
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .5));
     }
 
-    .ann-badge {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: flex;
+    /* Per-annotation border and fill */
+    .ann-marker[data-n="1"] { border-color: var(--ann1); background: rgba(251, 191, 36,  .07); }
+    .ann-marker[data-n="2"] { border-color: var(--ann2); background: rgba(52,  211, 153, .07); }
+    .ann-marker[data-n="3"] { border-color: var(--ann3); background: rgba(248, 113, 113, .07); }
+    .ann-marker[data-n="4"] { border-color: var(--ann4); background: rgba(167, 139, 250, .07); }
+    .ann-marker[data-n="5"] { border-color: var(--ann5); background: rgba(56,  189, 248, .07); }
+
+    /* Hover: brighter border, slightly more fill */
+    .ann-marker:hover { filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .65)); }
+    .ann-marker[data-n="1"]:hover { border-color: var(--ann1); background: rgba(251, 191, 36,  .14); }
+    .ann-marker[data-n="2"]:hover { border-color: var(--ann2); background: rgba(52,  211, 153, .14); }
+    .ann-marker[data-n="3"]:hover { border-color: var(--ann3); background: rgba(248, 113, 113, .14); }
+    .ann-marker[data-n="4"]:hover { border-color: var(--ann4); background: rgba(167, 139, 250, .14); }
+    .ann-marker[data-n="5"]:hover { border-color: var(--ann5); background: rgba(56,  189, 248, .14); }
+
+    /* Active: 2px border, stronger fill */
+    .ann-marker[data-n="1"].active { border-width: 2px; background: rgba(251, 191, 36,  .18); }
+    .ann-marker[data-n="2"].active { border-width: 2px; background: rgba(52,  211, 153, .18); }
+    .ann-marker[data-n="3"].active { border-width: 2px; background: rgba(248, 113, 113, .18); }
+    .ann-marker[data-n="4"].active { border-width: 2px; background: rgba(167, 139, 250, .18); }
+    .ann-marker[data-n="5"].active { border-width: 2px; background: rgba(56,  189, 248, .18); }
+
+    /*
+      Number chip — anchored to the top-left corner of the box.
+      Offset so it sits just outside the box border, not inside it.
+      transform: translate(-1px, -100%) moves it up flush with the top edge.
+    */
+    .ann-chip {
+      position: absolute;
+      top: 0;
+      left: -1px;
+      transform: translateY(-100%);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px 4px 4px 0;   /* square bottom-left corner meets box corner */
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
       font-weight: 800;
       line-height: 1;
       color: #0a0e18;
-    }
-
-    .ann-tip {
+      pointer-events: none;
       box-sizing: content-box;
-      width: 0;
-      height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      /* border-top-color set per data-n below */
-      border-top-width: 7px;
-      border-top-style: solid;
     }
 
-    /* Per-annotation colors */
-    .ann-marker[data-n="1"] .ann-badge { background: var(--ann1); }
-    .ann-marker[data-n="2"] .ann-badge { background: var(--ann2); }
-    .ann-marker[data-n="3"] .ann-badge { background: var(--ann3); }
-    .ann-marker[data-n="4"] .ann-badge { background: var(--ann4); }
-    .ann-marker[data-n="5"] .ann-badge { background: var(--ann5); }
-
-    .ann-marker[data-n="1"] .ann-tip { border-top-color: var(--ann1); }
-    .ann-marker[data-n="2"] .ann-tip { border-top-color: var(--ann2); }
-    .ann-marker[data-n="3"] .ann-tip { border-top-color: var(--ann3); }
-    .ann-marker[data-n="4"] .ann-tip { border-top-color: var(--ann4); }
-    .ann-marker[data-n="5"] .ann-tip { border-top-color: var(--ann5); }
-
-    /* Hover: subtle brightness lift — no scale, no glow rings */
-    .ann-marker:hover {
-      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, .75)) brightness(1.1);
-    }
-
-    /* Active: lift pin 3 px upward + stronger shadow */
-    .ann-marker.active {
-      transform: translateY(-3px);
-      filter: drop-shadow(0 5px 14px rgba(0, 0, 0, .85)) brightness(1.15);
-    }
+    .ann-marker[data-n="1"] .ann-chip { background: var(--ann1); }
+    .ann-marker[data-n="2"] .ann-chip { background: var(--ann2); }
+    .ann-marker[data-n="3"] .ann-chip { background: var(--ann3); }
+    .ann-marker[data-n="4"] .ann-chip { background: var(--ann4); }
+    .ann-marker[data-n="5"] .ann-chip { background: var(--ann5); }
 
     /* ── INFO PANEL ── */
     .info-panel {
@@ -1525,13 +1537,18 @@
         const el = document.createElement('div');
         el.className = 'ann-marker';
         el.dataset.n = i + 1;
-        el.innerHTML = `<div class="ann-badge">${i + 1}</div><div class="ann-tip"></div>`;
+        el.innerHTML = `<div class="ann-chip">${i + 1}</div>`;
         el.onclick = (e) => { e.stopPropagation(); highlightAnnotation(i); };
 
-        const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
-        const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
+        // Convert fractional image coords to viewport rect.
+        // imageToViewportRectangle takes (x, y, width, height) in image pixels.
+        const ix = ann.x1 * size.x;
+        const iy = ann.y1 * size.y;
+        const iw = (ann.x2 - ann.x1) * size.x;
+        const ih = (ann.y2 - ann.y1) * size.y;
+        const vpRect = viewer.viewport.imageToViewportRectangle(ix, iy, iw, ih);
 
-        viewer.addOverlay({ element: el, location: vpPt, placement: OpenSeadragon.Placement.BOTTOM });
+        viewer.addOverlay({ element: el, location: vpRect });
         overlays.push(el);
       });
     }
@@ -1561,7 +1578,11 @@
       const ann = activeCase.annotations[idx];
       const tiledImage = viewer.world.getItemAt(0);
       const size = tiledImage.getContentSize();
-      const imgPt = new OpenSeadragon.Point(ann.x * size.x, ann.y * size.y);
+
+      // Center of the bounding box
+      const cx = ((ann.x1 + ann.x2) / 2) * size.x;
+      const cy = ((ann.y1 + ann.y2) / 2) * size.y;
+      const imgPt = new OpenSeadragon.Point(cx, cy);
       const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
 
       viewer.viewport.panTo(vpPt, false);
@@ -1621,26 +1642,35 @@
 
 Specimen type: ${c.specimen_type}
 Magnification: ${c.magnification}
-Grid size: ${c.grid} (stitched composite of ${c.grid.replace('×', '*').split('*').reduce((a, b) => a * b)} tiles)
+Grid: ${c.grid} (stitched composite of ${c.grid.replace('×','*').split('*').reduce((a,b)=>a*b)} tiles)
 
-This image is a registered, stitched composite of multiple microscope fields from a Wright-Giemsa stained cytospin. Analyze the composite and:
+This image is a registered, stitched composite of multiple microscope fields from a Wright-Giemsa stained cytospin.
 
-1. Identify the 3 most diagnostically interesting or teaching-worthy regions in the image. For each, provide:
-   - x: fractional x coordinate (0.0 = left edge, 1.0 = right edge) pointing to the CENTER of the interesting region
-   - y: fractional y coordinate (0.0 = top edge, 1.0 = bottom edge) pointing to the CENTER of the interesting region
-   - label: a concise name for what is seen (e.g. "Reactive mesothelial cell", "Neutrophil cluster", "Macrophage with ingested debris")
-   - description: 2-3 sentences of teaching-oriented commentary suitable for medical students. Describe what makes this region interesting and what features to look for.
+TASK 1 — Identify the 3 most diagnostically interesting or teaching-worthy regions in the image.
+For each region draw a TIGHT bounding box that closely fits the feature. Do NOT box the entire
+image quadrant — the box should bound the specific cell, cluster, or structure of interest.
+Box sizes will naturally vary: a single cell might occupy 2–5% of image width; a large cluster
+10–20%; an extended mucus strand 5–30%. Use your judgement to fit the feature.
 
-2. Provide an overall case interpretation paragraph (3-5 sentences) summarizing the specimen findings, cellularity, and any notable features. Write as a pathologist would for a teaching context.
+For each annotation provide:
+  x1, y1  — top-left corner of the box (0.0 = left/top edge, 1.0 = right/bottom edge)
+  x2, y2  — bottom-right corner of the box (x2 > x1, y2 > y1, always)
+  label   — concise feature name (e.g. "Reactive mesothelial cell", "Neutrophil cluster")
+  description — 2–3 sentences of teaching commentary for medical students. Describe the
+                diagnostic significance and the specific morphologic features to look for.
 
-IMPORTANT: Respond ONLY with valid JSON, no markdown fences, no preamble. Use this exact schema:
+TASK 2 — Write a 3–5 sentence overall case interpretation paragraph suitable for a teaching
+atlas. Summarise cellularity, dominant cell types, background, and any notable or atypical findings.
+
+CRITICAL: Respond ONLY with valid JSON. No markdown fences, no preamble, no explanation.
+Exact schema:
 {
   "annotations": [
-    { "x": 0.35, "y": 0.42, "label": "...", "description": "..." },
-    { "x": 0.65, "y": 0.28, "label": "...", "description": "..." },
-    { "x": 0.50, "y": 0.75, "label": "...", "description": "..." }
+    { "x1": 0.12, "y1": 0.30, "x2": 0.28, "y2": 0.52, "label": "...", "description": "..." },
+    { "x1": 0.55, "y1": 0.10, "x2": 0.78, "y2": 0.38, "label": "...", "description": "..." },
+    { "x1": 0.40, "y1": 0.65, "x2": 0.62, "y2": 0.88, "label": "...", "description": "..." }
   ],
-  "interpretation": "Overall case interpretation paragraph here."
+  "interpretation": "Overall paragraph here."
 }`;
     }
 
@@ -1716,12 +1746,20 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown fences, no preamble. Use th
         throw new Error('Response missing annotations array');
       }
 
-      parsed.annotations = parsed.annotations.slice(0, 5).map(a => ({
-        x: Math.max(0, Math.min(1, Number(a.x) || 0.5)),
-        y: Math.max(0, Math.min(1, Number(a.y) || 0.5)),
-        label: String(a.label || 'Unlabeled'),
-        description: String(a.description || '')
-      }));
+      parsed.annotations = parsed.annotations.slice(0, 5).map(a => {
+        const x1 = Math.max(0, Math.min(1, Number(a.x1) || 0.1));
+        const y1 = Math.max(0, Math.min(1, Number(a.y1) || 0.1));
+        const x2 = Math.max(0, Math.min(1, Number(a.x2) || 0.9));
+        const y2 = Math.max(0, Math.min(1, Number(a.y2) || 0.9));
+        return {
+          x1: Math.min(x1, x2 - 0.01),  // enforce x1 < x2
+          y1: Math.min(y1, y2 - 0.01),  // enforce y1 < y2
+          x2,
+          y2,
+          label: String(a.label || 'Unlabeled'),
+          description: String(a.description || '')
+        };
+      });
 
       parsed.interpretation = String(parsed.interpretation || '');
 
