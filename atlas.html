@@ -793,29 +793,131 @@
       background: var(--ann5)
     }
 
-    .ip-ann-item.active[data-n="1"] {
-      border-color: var(--ann1);
-      background: rgba(251, 191, 36, .1)
+    .ip-ann-item.active[data-n="1"] { border-color: var(--ann1); background: rgba(251, 191, 36, .08); }
+    .ip-ann-item.active[data-n="2"] { border-color: var(--ann2); background: rgba(52, 211, 153, .08); }
+    .ip-ann-item.active[data-n="3"] { border-color: var(--ann3); background: rgba(248, 113, 113, .08); }
+    .ip-ann-item.active[data-n="4"] { border-color: var(--ann4); background: rgba(167, 139, 250, .08); }
+    .ip-ann-item.active[data-n="5"] { border-color: var(--ann5); background: rgba(56, 189, 248, .08); }
+
+    /* ── EDIT LAYER ── */
+    #edit-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      overflow: hidden;
+      cursor: default;
     }
 
-    .ip-ann-item.active[data-n="2"] {
-      border-color: var(--ann2);
-      background: rgba(52, 211, 153, .08)
+    /* Edit mode box */
+    .edit-box {
+      position: absolute;
+      box-sizing: border-box;
+      border: 1.5px solid;
+      cursor: move;
     }
 
-    .ip-ann-item.active[data-n="3"] {
-      border-color: var(--ann3);
-      background: rgba(248, 113, 113, .08)
+    .edit-box[data-n="1"] { border-color: var(--ann1); background: rgba(251,191,36,.08); }
+    .edit-box[data-n="2"] { border-color: var(--ann2); background: rgba(52,211,153,.08); }
+    .edit-box[data-n="3"] { border-color: var(--ann3); background: rgba(248,113,113,.08); }
+    .edit-box[data-n="4"] { border-color: var(--ann4); background: rgba(167,139,250,.08); }
+    .edit-box[data-n="5"] { border-color: var(--ann5); background: rgba(56,189,248,.08); }
+
+    .edit-box.selected { border-width: 2px; }
+    .edit-box[data-n="1"].selected { background: rgba(251,191,36,.16); }
+    .edit-box[data-n="2"].selected { background: rgba(52,211,153,.16); }
+    .edit-box[data-n="3"].selected { background: rgba(248,113,113,.16); }
+    .edit-box[data-n="4"].selected { background: rgba(167,139,250,.16); }
+    .edit-box[data-n="5"].selected { background: rgba(56,189,248,.16); }
+
+    /* Resize handle */
+    .edit-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border: 1.5px solid rgba(0,0,0,.4);
+      border-radius: 2px;
+      box-sizing: border-box;
+      z-index: 1;
     }
 
-    .ip-ann-item.active[data-n="4"] {
-      border-color: var(--ann4);
-      background: rgba(167, 139, 250, .08)
+    /* Handle positions — centered on the edge/corner they control */
+    .edit-handle[data-dir="nw"] { top: -5px;  left: -5px;  cursor: nw-resize; }
+    .edit-handle[data-dir="n"]  { top: -5px;  left: calc(50% - 5px); cursor: n-resize; }
+    .edit-handle[data-dir="ne"] { top: -5px;  right: -5px; cursor: ne-resize; }
+    .edit-handle[data-dir="e"]  { top: calc(50% - 5px); right: -5px; cursor: e-resize; }
+    .edit-handle[data-dir="se"] { bottom: -5px; right: -5px; cursor: se-resize; }
+    .edit-handle[data-dir="s"]  { bottom: -5px; left: calc(50% - 5px); cursor: s-resize; }
+    .edit-handle[data-dir="sw"] { bottom: -5px; left: -5px; cursor: sw-resize; }
+    .edit-handle[data-dir="w"]  { top: calc(50% - 5px); left: -5px; cursor: w-resize; }
+
+    /* Chip label inside edit box */
+    .edit-chip {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      color: #0a0e18;
+      pointer-events: none;
+      box-sizing: content-box;
     }
 
-    .ip-ann-item.active[data-n="5"] {
-      border-color: var(--ann5);
-      background: rgba(56, 189, 248, .08)
+    .edit-box[data-n="1"] .edit-chip { background: var(--ann1); }
+    .edit-box[data-n="2"] .edit-chip { background: var(--ann2); }
+    .edit-box[data-n="3"] .edit-chip { background: var(--ann3); }
+    .edit-box[data-n="4"] .edit-chip { background: var(--ann4); }
+    .edit-box[data-n="5"] .edit-chip { background: var(--ann5); }
+
+    /* Edit mode active state on the toggle button */
+    .ap-btn.edit-active {
+      background: var(--amber-dim);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    /* ── AUTHOR EDIT INPUTS ── */
+    .ip-edit-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: inherit;
+      padding: 2px 6px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .ip-edit-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--surface3);
+    }
+    .ip-edit-textarea {
+      width: 100%;
+      min-height: 120px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      color: var(--text2);
+      font-family: inherit;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.7;
+      resize: vertical;
+    }
+    .ip-edit-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--surface3);
     }
 
     .ip-ann-label {
@@ -1130,6 +1232,7 @@
             Choose a case from the sidebar to view the composite virtual slide.
           </div>
           <div id="osd-viewer" style="display:none"></div>
+      <div id="edit-layer" style="display:none"></div>
           <div class="viewer-loading hidden" id="viewer-loading">
             <div class="viewer-loading-inner">
               <div class="wl-loading-spinner"></div>
@@ -1174,6 +1277,8 @@
               <button class="ap-btn primary" id="ap-generate" onclick="generateAnnotations()">Generate
                 Annotations</button>
               <button class="ap-btn" id="ap-reroll" onclick="generateAnnotations()" disabled>Reroll</button>
+              <button class="ap-btn" id="ap-edit" onclick="toggleEditMode()" disabled>Edit Boxes</button>
+              <button class="ap-btn" id="ap-reviewed" onclick="activeCase.ai_generated=false; showInfoPanel(activeCase); showToast('Marked as Reviewed')" title="Sets ai_generated to false">Mark Reviewed</button>
               <button class="ap-btn" id="ap-export" onclick="exportCaseJSON()" disabled>Export JSON</button>
             </div>
             <div class="ap-status" id="ap-status"></div>
@@ -1351,6 +1456,7 @@
     // Case selection
     // ─────────────────────────────────────────────────────────────────────────
     function selectCase(c) {
+      if (editMode) exitEditMode();
       if (isOverlayMode()) closeSidebar();
       activeCase = c;
       buildSidebar();
@@ -1397,13 +1503,226 @@
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // Bounding box editor (author mode)
+    // ─────────────────────────────────────────────────────────────────────────
+    let editMode = false;
+
+    function toggleEditMode() {
+      editMode ? exitEditMode() : enterEditMode();
+    }
+
+    function enterEditMode() {
+      if (!activeCase || !viewer) return;
+      editMode = true;
+
+      // Disable OSD pan/zoom
+      viewer.setMouseNavEnabled(false);
+
+      // Show edit layer
+      const layer = document.getElementById('edit-layer');
+      layer.style.display = 'block';
+      buildEditBoxes();
+
+      // Update button appearance
+      const btn = document.getElementById('ap-edit');
+      btn.textContent = 'Done Editing';
+      btn.classList.add('edit-active');
+    }
+
+    function exitEditMode() {
+      editMode = false;
+
+      // Re-enable OSD
+      if (viewer) viewer.setMouseNavEnabled(true);
+
+      // Hide edit layer
+      const layer = document.getElementById('edit-layer');
+      layer.style.display = 'none';
+      layer.innerHTML = '';
+
+      // Refresh OSD overlays to reflect any edits
+      clearOverlays();
+      addAnnotationOverlays(activeCase);
+
+      // Update button
+      const btn = document.getElementById('ap-edit');
+      btn.textContent = 'Edit Boxes';
+      btn.classList.remove('edit-active');
+    }
+
+    // ── Coordinate helpers ───────────────────────────────────────────────────
+
+    // Convert fractional image coords → screen pixels relative to viewer-wrap
+    function fracToScreen(fx, fy) {
+      const tiledImage = viewer.world.getItemAt(0);
+      const size = tiledImage.getContentSize();
+      const imgPt = new OpenSeadragon.Point(fx * size.x, fy * size.y);
+      const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
+      const winPt = viewer.viewport.viewportToWindowCoordinates(vpPt);
+
+      // Offset relative to viewer-wrap (not window)
+      const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
+      return { x: winPt.x - wrapRect.left, y: winPt.y - wrapRect.top };
+    }
+
+    // Convert screen pixels (relative to viewer-wrap) → fractional image coords
+    function screenToFrac(sx, sy) {
+      const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
+      const winPt = new OpenSeadragon.Point(sx + wrapRect.left, sy + wrapRect.top);
+      const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
+      const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
+
+      const tiledImage = viewer.world.getItemAt(0);
+      const size = tiledImage.getContentSize();
+      return {
+        fx: Math.max(0, Math.min(1, imgPt.x / size.x)),
+        fy: Math.max(0, Math.min(1, imgPt.y / size.y))
+      };
+    }
+
+    // ── Build edit boxes ─────────────────────────────────────────────────────
+
+    function buildEditBoxes() {
+      const layer = document.getElementById('edit-layer');
+      layer.innerHTML = '';
+
+      if (!activeCase || !activeCase.annotations) return;
+
+      activeCase.annotations.forEach((ann, i) => {
+        const el = document.createElement('div');
+        el.className = 'edit-box';
+        el.dataset.n = i + 1;
+        el.dataset.idx = i;
+
+        // Chip label
+        el.innerHTML = `<div class="edit-chip">${i + 1}</div>`;
+
+        // 8 resize handles
+        ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].forEach(dir => {
+          const h = document.createElement('div');
+          h.className = 'edit-handle';
+          h.dataset.dir = dir;
+          h.dataset.idx = i;
+          el.appendChild(h);
+        });
+
+        layer.appendChild(el);
+        positionEditBox(el, ann);
+        attachEditBoxEvents(el, i);
+      });
+    }
+
+    // Position one edit box from annotation fractional coords
+    function positionEditBox(el, ann) {
+      const tl = fracToScreen(ann.x1, ann.y1);
+      const br = fracToScreen(ann.x2, ann.y2);
+      el.style.left = tl.x + 'px';
+      el.style.top = tl.y + 'px';
+      el.style.width = (br.x - tl.x) + 'px';
+      el.style.height = (br.y - tl.y) + 'px';
+    }
+
+    // ── Drag interaction ─────────────────────────────────────────────────────
+
+    function attachEditBoxEvents(el, idx) {
+      // Move (drag on box interior — not on a handle)
+      el.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('edit-handle')) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        document.querySelectorAll('.edit-box').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+
+        const ann = activeCase.annotations[idx];
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const origX1 = ann.x1, origY1 = ann.y1, origX2 = ann.x2, origY2 = ann.y2;
+
+        const onMove = (ev) => {
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+
+          // Convert a zero-point and the delta-point to get fractional delta
+          const origin = screenToFrac(0, 0);
+          const delta = screenToFrac(dx, dy);
+          const dfx = delta.fx - origin.fx;
+          const dfy = delta.fy - origin.fy;
+
+          const w = origX2 - origX1;
+          const h = origY2 - origY1;
+          ann.x1 = Math.max(0, Math.min(1 - w, origX1 + dfx));
+          ann.y1 = Math.max(0, Math.min(1 - h, origY1 + dfy));
+          ann.x2 = ann.x1 + w;
+          ann.y2 = ann.y1 + h;
+
+          positionEditBox(el, ann);
+        };
+
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      // Resize handles
+      el.querySelectorAll('.edit-handle').forEach(handle => {
+        handle.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const dir = handle.dataset.dir;
+          const ann = activeCase.annotations[idx];
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const orig = { x1: ann.x1, y1: ann.y1, x2: ann.x2, y2: ann.y2 };
+
+          const onMove = (ev) => {
+            const dx = ev.clientX - startX;
+            const dy = ev.clientY - startY;
+
+            const origin = screenToFrac(0, 0);
+            const delta = screenToFrac(dx, dy);
+            const dfx = delta.fx - origin.fx;
+            const dfy = delta.fy - origin.fy;
+
+            // Apply delta to the appropriate edges based on handle direction
+            const MIN_SIZE = 0.02; // minimum box size in fractional coords
+
+            if (dir.includes('n')) ann.y1 = Math.max(0, Math.min(orig.y2 - MIN_SIZE, orig.y1 + dfy));
+            if (dir.includes('s')) ann.y2 = Math.min(1, Math.max(orig.y1 + MIN_SIZE, orig.y2 + dfy));
+            if (dir.includes('w')) ann.x1 = Math.max(0, Math.min(orig.x2 - MIN_SIZE, orig.x1 + dfx));
+            if (dir.includes('e')) ann.x2 = Math.min(1, Math.max(orig.x1 + MIN_SIZE, orig.x2 + dfx));
+
+            positionEditBox(el, ann);
+          };
+
+          const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          };
+
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        });
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // Info panel
     // ─────────────────────────────────────────────────────────────────────────
     function showInfoPanel(c) {
       const panel = document.getElementById('info-panel');
       panel.classList.remove('hidden');
 
-      document.getElementById('ip-title').textContent = c.title;
+      if (IS_AUTHOR) {
+        document.getElementById('ip-title').innerHTML = `<input type="text" class="ip-edit-input" value="${c.title}" oninput="activeCase.title=this.value; buildSidebar();">`;
+      } else {
+        document.getElementById('ip-title').textContent = c.title;
+      }
 
       // Meta tags
       const metaRow = document.getElementById('ip-meta-row');
@@ -1423,14 +1742,21 @@
       // Interpretation
       const interpEl = document.getElementById('ip-interp');
       const aiBadge = document.getElementById('ip-ai-badge-wrap');
-      if (c.interpretation && c.interpretation.trim()) {
-        interpEl.innerHTML = c.interpretation;
-        interpEl.classList.toggle('ai-draft', !!c.ai_generated);
-        aiBadge.style.display = c.ai_generated ? '' : 'none';
-      } else {
-        interpEl.innerHTML = '<span class="ip-empty">No interpretation yet.</span>';
+
+      if (IS_AUTHOR) {
+        interpEl.innerHTML = `<textarea class="ip-edit-textarea" placeholder="Enter interpretation..." oninput="activeCase.interpretation=this.value">${c.interpretation || ''}</textarea>`;
         interpEl.classList.remove('ai-draft');
         aiBadge.style.display = 'none';
+      } else {
+        if (c.interpretation && c.interpretation.trim()) {
+          interpEl.innerHTML = c.interpretation;
+          interpEl.classList.toggle('ai-draft', !!c.ai_generated);
+          aiBadge.style.display = c.ai_generated ? '' : 'none';
+        } else {
+          interpEl.innerHTML = '<span class="ip-empty">No interpretation yet.</span>';
+          interpEl.classList.remove('ai-draft');
+          aiBadge.style.display = 'none';
+        }
       }
 
       // Annotations
@@ -1440,8 +1766,10 @@
       const ap = document.getElementById('author-panel');
       if (IS_AUTHOR) {
         ap.classList.add('visible');
-        document.getElementById('ap-reroll').disabled = !c.annotations || c.annotations.length === 0;
-        document.getElementById('ap-export').disabled = !c.annotations || c.annotations.length === 0;
+        const hasAnnotations = c.annotations && c.annotations.length > 0;
+        document.getElementById('ap-reroll').disabled = !hasAnnotations;
+        document.getElementById('ap-edit').disabled = !hasAnnotations;
+        document.getElementById('ap-export').disabled = !hasAnnotations;
         document.getElementById('ap-status').textContent = '';
       } else {
         ap.classList.remove('visible');
@@ -1625,6 +1953,7 @@
         showInfoPanel(activeCase);
         clearOverlays();
         addAnnotationOverlays(activeCase);
+        document.getElementById('ap-edit').disabled = false;
 
         statusEl.textContent = `✓ Generated ${parsed.annotations.length} annotations`;
         rerollBtn.disabled = false;
