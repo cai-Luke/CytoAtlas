@@ -2,7 +2,7 @@
   "cases": [
     {
       "id": "Case_20260415_161024",
-      "title": "BAL — 100× Oil",
+      "title": "Macrophage-dominant, mild neutrophilia",
       "specimen_type": "BAL",
       "magnification": "100×",
       "grid": "3×3",
@@ -39,7 +39,7 @@
     },
     {
       "id": "Case_20260418_155022",
-      "title": "Pleural Fluid — 50× Oil",
+      "title": "Reactive large cells, mixed inflammatory background",
       "specimen_type": "Pleural",
       "magnification": "50×",
       "grid": "3×3",
@@ -76,7 +76,7 @@
     },
     {
       "id": "Case_20260419_141735",
-      "title": "BAL — 50× Oil",
+      "title": "Neutrophil-laden mucus strands, acute inflammation",
       "specimen_type": "BAL",
       "magnification": "50×",
       "grid": "3×3",
@@ -113,7 +113,7 @@
     },
     {
       "id": "Case_20260423_101252",
-      "title": "Synovial Fluid — 50× Oil",
+      "title": "Purulent effusion, degenerating neutrophils",
       "specimen_type": "Synovial",
       "magnification": "50×",
       "grid": "5×5",
