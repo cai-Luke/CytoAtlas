@@ -1,11 +1,48 @@
 {
   "cases": [
     {
+      "id": "Case_20260428_085918",
+      "title": "Macrophage-predominant with numerous hemosiderin-laden macrophages",
+      "specimen_type": "Pleural fluid",
+      "magnification": "50\u00d7",
+      "grid": "5\u00d75",
+      "date": "2026-04-28",
+      "image": "assets/Case_20260428_085918_composite_trimmed.jpg",
+      "annotations": [
+        {
+          "x1": 0.266,
+          "y1": 0.404,
+          "x2": 0.414,
+          "y2": 0.597,
+          "label": "Hemosiderin-laden macrophages",
+          "description": "This cluster contains numerous large macrophages with abundant cytoplasm packed with dark, coarse, refractile pigment granules (hemosiderin). This finding indicates prior hemorrhage or chronic bleeding into the pleural space."
+        },
+        {
+          "x1": 0.556,
+          "y1": 0.063,
+          "x2": 0.655,
+          "y2": 0.165,
+          "label": "Macrophage cluster",
+          "description": "A group of macrophages demonstrating variable amounts of intracytoplasmic pigment and vacuolation. The presence of these cells suggests an ongoing phagocytic response to cellular debris or red blood cells."
+        },
+        {
+          "x1": 0.177,
+          "y1": 0.772,
+          "x2": 0.323,
+          "y2": 0.925,
+          "label": "Mixed inflammatory cells with macrophages",
+          "description": "This area shows a mix of inflammatory cells, predominantly macrophages, some of which contain pigment. Small lymphocytes and occasional neutrophils are also scattered in the background."
+        }
+      ],
+      "interpretation": "The pleural fluid cytospin shows a moderately cellular specimen characterized predominantly by large numbers of macrophages, many of which contain abundant, coarse, dark cytoplasmic pigment consistent with hemosiderin. This indicates a history of bleeding into the pleural cavity. Scattered small lymphocytes, occasional neutrophils, and background red blood cells are also present. No malignant cells are identified.",
+      "ai_generated": true
+    },
+    {
       "id": "Case_20260415_161024",
       "title": "Macrophage-dominant, mild neutrophilia",
       "specimen_type": "BAL",
-      "magnification": "100×",
-      "grid": "3×3",
+      "magnification": "100\u00d7",
+      "grid": "3\u00d73",
       "date": "2026-04-15",
       "image": "assets/Case_20260415_161024_composite_trimmed.jpg",
       "annotations": [
@@ -41,8 +78,8 @@
       "id": "Case_20260418_155022",
       "title": "Reactive large cells, mixed inflammatory background",
       "specimen_type": "Pleural",
-      "magnification": "50×",
-      "grid": "3×3",
+      "magnification": "50\u00d7",
+      "grid": "3\u00d73",
       "date": "2026-04-18",
       "image": "assets/Case_20260418_155022_composite_trimmed.jpg",
       "annotations": [
@@ -78,8 +115,8 @@
       "id": "Case_20260419_141735",
       "title": "Neutrophil-laden mucus strands, acute inflammation",
       "specimen_type": "BAL",
-      "magnification": "50×",
-      "grid": "3×3",
+      "magnification": "50\u00d7",
+      "grid": "3\u00d73",
       "date": "2026-04-19",
       "image": "assets/Case_20260419_141735_composite_trimmed.jpg",
       "annotations": [
@@ -115,14 +152,35 @@
       "id": "Case_20260423_101252",
       "title": "Purulent effusion, degenerating neutrophils",
       "specimen_type": "Synovial",
-      "magnification": "50×",
-      "grid": "5×5",
+      "magnification": "50\u00d7",
+      "grid": "5\u00d75",
       "date": "2026-04-23",
       "image": "assets/Case_20260423_101252_composite_trimmed.jpg",
       "annotations": [
-        {"x1": 0.05, "y1": 0.75, "x2": 0.25, "y2": 0.95, "label": "Dense aggregate of degenerating neutrophils", "description": "A thick sheet of polymorphonuclear leukocytes exhibiting pyknotic and fragmented nuclei (karyorrhexis). This degree of cellular breakdown is typical of a purulent exudate."},
-        {"x1": 0.65, "y1": 0.35, "x2": 0.85, "y2": 0.55, "label": "Area of dense neutrophilic infiltrate", "description": "Another field overwhelmed by intact and degenerating neutrophils. In synovial fluid, such extreme neutrophilia is highly suspicious for septic arthritis or a severe crystal arthropathy."},
-        {"x1": 0.58, "y1": 0.75, "x2": 0.64, "y2": 0.81, "label": "Possible macrophage amidst neutrophils", "description": "A mononuclear cell, likely a macrophage, stands out against the background of neutrophils. Macrophages often appear later in the inflammatory process to clear apoptotic neutrophils and debris."}
+        {
+          "x1": 0.05,
+          "y1": 0.75,
+          "x2": 0.25,
+          "y2": 0.95,
+          "label": "Dense aggregate of degenerating neutrophils",
+          "description": "A thick sheet of polymorphonuclear leukocytes exhibiting pyknotic and fragmented nuclei (karyorrhexis). This degree of cellular breakdown is typical of a purulent exudate."
+        },
+        {
+          "x1": 0.65,
+          "y1": 0.35,
+          "x2": 0.85,
+          "y2": 0.55,
+          "label": "Area of dense neutrophilic infiltrate",
+          "description": "Another field overwhelmed by intact and degenerating neutrophils. In synovial fluid, such extreme neutrophilia is highly suspicious for septic arthritis or a severe crystal arthropathy."
+        },
+        {
+          "x1": 0.58,
+          "y1": 0.75,
+          "x2": 0.64,
+          "y2": 0.81,
+          "label": "Possible macrophage amidst neutrophils",
+          "description": "A mononuclear cell, likely a macrophage, stands out against the background of neutrophils. Macrophages often appear later in the inflammatory process to clear apoptotic neutrophils and debris."
+        }
       ],
       "interpretation": "This synovial fluid cytospin is markedly hypercellular, overwhelmingly dominated by polymorphonuclear leukocytes (neutrophils). The neutrophils are densely packed, with many displaying evidence of degeneration and pyknotic nuclei. A granular, lightly basophilic background is present, likely representing proteinaceous material and cellular debris from neutrophil breakdown. The extreme neutrophilic pleocytosis and presence of degenerative changes are highly characteristic of an acute, purulent inflammatory process, such as septic arthritis or a severe crystal-induced arthropathy.",
       "ai_generated": true
