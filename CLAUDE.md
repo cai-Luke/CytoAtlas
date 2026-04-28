@@ -175,7 +175,7 @@ and `assets/Case_20260418_155022_composite_trimmed.jpg`.
 
 ## Gemini API
 
-Model string: `gemini-3.1-pro` (hardcoded in `callGemini()` in `index.html`).
+Model string: `gemini-3.1-pro-preview` (hardcoded in `callGemini()` in `index.html`).
 If this model is deprecated, update the model string — it is the only change needed.
 The API key is entered by the user at runtime and stored in `localStorage` under
 `cytoatlas_gemini_key`. It is never committed to the repo.
@@ -190,7 +190,7 @@ schemas in these blocks. Each contains an inline comment explaining the decision
 Treat that comment as authoritative and do not second-guess it:
 
 - `index.html` → `callGemini()` — Gemini API call for annotation generation. Uses
-  `gemini-3.1-pro` model string. Intentional and verified working. Do not change
+  `gemini-3.1-pro-preview` model string. Intentional and verified working. Do not change
   the model name or generation config schema.
 
 If a bug is suspected in this function, flag it to Luke rather than making a unilateral

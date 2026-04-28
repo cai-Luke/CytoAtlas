@@ -1527,12 +1527,12 @@ Exact schema:
     }
 
     // ── GEMINI API CALL ──────────────────────────────────────────────────────────
-    // Model string and request schema verified against live API 2026-04-25.
-    // "gemini-3.1-pro" is correct — do not change to an older string.
+    // Model string and request schema updated 2026-04-28 due to 404 on stable.
+    // "gemini-3.1-pro-preview" is currently required.
     // generationConfig shape is intentional. Do not normalise against older API docs.
     // ─────────────────────────────────────────────────────────────────────────────
     async function callGemini(apiKey, base64Image, prompt) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${apiKey}`;
       const resp = await fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
