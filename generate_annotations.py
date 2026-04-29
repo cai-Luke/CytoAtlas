@@ -23,7 +23,7 @@ def get_api_key():
     return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate CytoAtlas annotations using Gemini 3.1 Pro.")
+    parser = argparse.ArgumentParser(description="Generate CytoAtlas annotations using Gemini 3.1 Pro Preview.")
     parser.add_argument("case_id", help="The ID of the case in cases.json to process (e.g. Case_20260428_085918)")
     args = parser.parse_args()
     

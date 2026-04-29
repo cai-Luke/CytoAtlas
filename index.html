@@ -1452,7 +1452,7 @@
       statusEl.textContent = 'Capturing composite for analysis…';
       try {
         const base64 = await getCompositeBase64();
-        statusEl.textContent = 'Sending to Gemini 3.1 Pro…';
+        statusEl.textContent = 'Sending to Gemini 3.1 Pro Preview…';
         const response = await callGemini(apiKey, base64, buildAnnotationPrompt(activeCase));
         const parsed = parseGeminiResponse(response);
         activeCase.annotations = parsed.annotations;
