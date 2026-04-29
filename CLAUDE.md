@@ -83,7 +83,7 @@ Annotation marker colors (do not change — also used in HemeAtlas):
     {
       "id": "Case_20260418_155022",
       "title": "Reactive large cells, mixed inflammatory background",
-      "specimen_type": "Pleural",
+      "specimen_type": "Pleural fluid",
       "magnification": "50×",
       "grid": "3×3",
       "date": "2026-04-18",
