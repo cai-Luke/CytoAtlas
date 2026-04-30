@@ -1727,6 +1727,165 @@
     .displayregion {
       border: 1.5px solid var(--accent) !important;
     }
+
+    /* ── VIEWER CONTROLS TOOLBAR ── */
+    .viewer-toolbar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 4px 6px;
+      box-shadow: var(--shadow);
+      z-index: 15;
+    }
+
+    .viewer-toolbar.visible {
+      display: flex;
+    }
+
+    .vt-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      border: none;
+      background: transparent;
+      color: var(--text3);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .12s, color .12s;
+    }
+
+    .vt-btn:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    .vt-btn.small {
+      font-size: 14px;
+    }
+
+    .vt-zoom-label {
+      min-width: 44px;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text2);
+      cursor: default;
+      user-select: none;
+    }
+
+    @media (max-width: 599px) {
+      .vt-btn {
+        width: 28px;
+        height: 28px;
+      }
+
+      .viewer-toolbar {
+        gap: 1px;
+      }
+    }
+
+    /* ── PREVIEW GRID ── */
+    .preview-grid {
+      position: absolute;
+      inset: 0;
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      padding: 32px;
+      overflow-y: auto;
+      align-content: start;
+    }
+
+    .preview-grid.visible {
+      display: grid;
+    }
+
+    .pg-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .pg-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      color: var(--text);
+    }
+
+    .pg-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text4);
+    }
+
+    .pg-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--text4);
+      font-size: 14px;
+      padding: 60px 0;
+    }
+
+    .case-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .case-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+
+    .case-card-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .case-card-body {
+      padding: 12px 14px;
+    }
+
+    .case-card-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .case-card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .case-card-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text4);
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js"></script>
 </head>
@@ -1836,10 +1995,7 @@
 
       <div class="main">
         <div class="viewer-wrap" id="viewer-wrap">
-          <div class="viewer-empty" id="viewer-empty">
-            <div class="viewer-empty-title">Select a case</div>
-            Choose a case from the sidebar to view the composite virtual slide.
-          </div>
+          <div class="preview-grid" id="preview-grid"></div>
           <div id="osd-viewer" style="display:none"></div>
           <div id="edit-layer" style="display:none"></div>
           <div class="viewer-loading hidden" id="viewer-loading">
@@ -1847,6 +2003,14 @@
               <div class="wl-spinner"></div>
               <div style="font-size:12px;color:var(--text3)">Loading composite…</div>
             </div>
+          </div>
+          <div class="viewer-toolbar" id="viewer-toolbar">
+            <button class="vt-btn small" title="Rotate CCW" onclick="rotateViewer(-90)">↺</button>
+            <button class="vt-btn" title="Zoom Out" onclick="viewerZoomBy(0.6)">−</button>
+            <span class="vt-zoom-label" id="vt-zoom-label">1.0×</span>
+            <button class="vt-btn" title="Zoom In" onclick="viewerZoomBy(1.6)">+</button>
+            <button class="vt-btn small" title="Rotate CW" onclick="rotateViewer(90)">↻</button>
+            <button class="vt-btn small" title="Reset view" onclick="resetViewer()">⌂</button>
           </div>
         </div>
 
@@ -1945,7 +2109,7 @@
     // ─────────────────────────────────────────────────────────────────────────
     let CASES = [], SPECIMEN_TYPES = [], activeFilter = 'All';
     let activeCase = null, viewer = null, overlays = [];
-    let casesReady = false;
+    let casesReady = false, viewerRotation = 0;
     const IS_AUTHOR = new URLSearchParams(location.search).has('author');
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -2208,15 +2372,10 @@
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Sidebar
+    // Filtering (shared by sidebar and preview grid)
     // ─────────────────────────────────────────────────────────────────────────
-    const collapsedGroups = new Set();
-
-    function buildSidebar() {
-      const list = document.getElementById('sb-list');
-      list.innerHTML = '';
+    function getFilteredCases() {
       const query = (document.getElementById('sb-search')?.value || '').toLowerCase().trim();
-
       let filtered = activeFilter === 'All' ? CASES : CASES.filter(c => c.specimen_type === activeFilter);
       if (query) {
         filtered = filtered.filter(c =>
@@ -2225,9 +2384,22 @@
           (c.date || '').includes(query)
         );
       }
+      return filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sidebar
+    // ─────────────────────────────────────────────────────────────────────────
+    const collapsedGroups = new Set();
+
+    function buildSidebar() {
+      const list = document.getElementById('sb-list');
+      list.innerHTML = '';
+      const filtered = getFilteredCases();
 
       if (filtered.length === 0) {
         list.innerHTML = '<div class="sb-no-results">No matching cases</div>';
+        buildPreviewGrid();
         return;
       }
 
@@ -2256,6 +2428,53 @@
           });
         }
       });
+
+      buildPreviewGrid();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Preview grid
+    // ─────────────────────────────────────────────────────────────────────────
+    function buildPreviewGrid() {
+      const grid = document.getElementById('preview-grid');
+      if (activeCase !== null) { grid.classList.remove('visible'); return; }
+
+      const filtered = getFilteredCases();
+      grid.innerHTML = '';
+
+      const header = document.createElement('div');
+      header.className = 'pg-header';
+      const titleText = activeFilter === 'All' ? 'Cases' : activeFilter;
+      header.innerHTML = `<span class="pg-title">${titleText}</span><span class="pg-count">${filtered.length} case${filtered.length !== 1 ? 's' : ''}</span>`;
+      grid.appendChild(header);
+
+      if (filtered.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'pg-empty';
+        empty.textContent = 'No matching cases';
+        grid.appendChild(empty);
+        grid.classList.add('visible');
+        return;
+      }
+
+      filtered.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'case-card';
+        card.onclick = () => selectCase(c);
+        const dateStr = (c.date || '').slice(0, 7);
+        card.innerHTML = `
+          <img class="case-card-thumb" src="${c.image}" alt="${c.title}" loading="lazy">
+          <div class="case-card-body">
+            <div class="case-card-title">${c.title}</div>
+            <div class="case-card-bottom">
+              <span class="ip-meta-tag specimen">${c.specimen_type}</span>
+              <span class="case-card-date">${dateStr}</span>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+
+      grid.classList.add('visible');
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -2270,7 +2489,6 @@
     function goHome() {
       activeCase = null; buildSidebar(); hideViewer();
       document.getElementById('info-panel').classList.add('hidden');
-      document.getElementById('viewer-empty').style.display = '';
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -2460,12 +2678,13 @@
     // Viewer
     // ─────────────────────────────────────────────────────────────────────────
     function loadViewer(c) {
-      document.getElementById('viewer-empty').style.display = 'none';
+      document.getElementById('preview-grid').classList.remove('visible');
       document.getElementById('osd-viewer').style.display = 'block';
       const loading = document.getElementById('viewer-loading');
       loading.classList.remove('hidden');
       if (viewer) { viewer.destroy(); viewer = null; }
       overlays = [];
+      viewerRotation = 0;
       viewer = OpenSeadragon({
         id: 'osd-viewer',
         prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/',
@@ -2477,7 +2696,13 @@
         gestureSettingsTouch: { pinchToZoom: true, dblClickToZoom: true },
         showZoomControl: false, showHomeControl: false, showFullPageControl: false
       });
-      viewer.addHandler('open', () => { loading.classList.add('hidden'); addAnnotationOverlays(c); });
+      viewer.addHandler('open', () => {
+        loading.classList.add('hidden');
+        addAnnotationOverlays(c);
+        document.getElementById('viewer-toolbar').classList.add('visible');
+        updateZoomLabel();
+      });
+      viewer.addHandler('zoom', updateZoomLabel);
       viewer.addHandler('open-failed', () => { loading.querySelector('div:last-child').textContent = 'Failed to load image'; });
     }
 
@@ -2485,6 +2710,33 @@
       if (viewer) { viewer.destroy(); viewer = null; } overlays = [];
       document.getElementById('osd-viewer').style.display = 'none';
       document.getElementById('viewer-loading').classList.add('hidden');
+      document.getElementById('viewer-toolbar').classList.remove('visible');
+    }
+
+    function updateZoomLabel() {
+      if (!viewer) return;
+      const zoom = viewer.viewport.getZoom(true);
+      const homeZoom = viewer.viewport.getHomeZoom();
+      const level = homeZoom > 0 ? zoom / homeZoom : zoom;
+      document.getElementById('vt-zoom-label').textContent = level.toFixed(1) + '×';
+    }
+
+    function rotateViewer(delta) {
+      if (!viewer) return;
+      viewerRotation = (viewerRotation + delta + 360) % 360;
+      viewer.viewport.setRotation(viewerRotation);
+    }
+
+    function resetViewer() {
+      if (!viewer) return;
+      viewerRotation = 0;
+      viewer.viewport.setRotation(0);
+      viewer.viewport.goHome();
+    }
+
+    function viewerZoomBy(factor) {
+      if (!viewer) return;
+      viewer.viewport.zoomBy(factor);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
