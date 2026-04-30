@@ -1573,7 +1573,7 @@
       font-family: 'DM Sans', sans-serif;
     }
 
-    .ap-btn:hover {
+    .ap-btn:hover:not(:disabled) {
       border-color: var(--accent);
       color: var(--accent);
     }
@@ -2155,7 +2155,7 @@
       <div class="sidebar" id="sidebar">
         <div class="sb-section">Cases</div>
         <div class="sb-search-wrap">
-          <input type="search" class="sb-search" id="sb-search" placeholder="Search…" oninput="buildSidebar()">
+          <input type="search" class="sb-search" id="sb-search" placeholder="Search…">
         </div>
         <div class="sb-filter-wrap" id="sb-filter-wrap"></div>
         <div class="sb-list" id="sb-list"></div>
@@ -2523,6 +2523,9 @@
         btn.classList.add('visible');
         document.getElementById('wl-hint').classList.add('ready');
 
+        // Attach search listener
+        document.getElementById('sb-search').addEventListener('input', handleSearch);
+
       } catch (err) {
         const errEl = document.getElementById('wl-error');
         errEl.style.display = 'block';
@@ -2627,7 +2630,16 @@
           (c.date || '').includes(query)
         );
       }
-      return filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    return filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    }
+
+    // Search debounce (Spec Refinement)
+    let searchTimeout = null;
+    function handleSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        buildSidebar();
+      }, 150);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -2649,6 +2661,8 @@
       const groups = {};
       filtered.forEach(c => { if (!groups[c.specimen_type]) groups[c.specimen_type] = []; groups[c.specimen_type].push(c); });
 
+      const fragment = document.createDocumentFragment();
+
       Object.keys(groups).sort().forEach(st => {
         const isCollapsed = collapsedGroups.has(st);
 
@@ -2659,7 +2673,7 @@
           collapsedGroups.has(st) ? collapsedGroups.delete(st) : collapsedGroups.add(st);
           buildSidebar();
         };
-        list.appendChild(label);
+        fragment.appendChild(label);
 
         if (!isCollapsed) {
           groups[st].forEach(c => {
@@ -2667,11 +2681,12 @@
             item.className = 'sb-item' + (activeCase && activeCase.id === c.id ? ' active' : '');
             item.onclick = () => selectCase(c);
             item.innerHTML = `<div class="sb-item-name">${c.title}</div><div class="sb-item-meta">${c.date || c.magnification}</div>`;
-            list.appendChild(item);
+            fragment.appendChild(item);
           });
         }
       });
 
+      list.appendChild(fragment);
       buildPreviewGrid();
     }
 
@@ -2684,18 +2699,20 @@
 
       const filtered = getFilteredCases();
       grid.innerHTML = '';
+      const fragment = document.createDocumentFragment();
 
       const header = document.createElement('div');
       header.className = 'pg-header';
       const titleText = activeFilter === 'All' ? 'Cases' : activeFilter;
       header.innerHTML = `<span class="pg-title">${titleText}</span><span class="pg-count">${filtered.length} case${filtered.length !== 1 ? 's' : ''}</span>`;
-      grid.appendChild(header);
+      fragment.appendChild(header);
 
       if (filtered.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'pg-empty';
         empty.textContent = 'No matching cases';
-        grid.appendChild(empty);
+        fragment.appendChild(empty);
+        grid.appendChild(fragment);
         grid.classList.add('visible');
         return;
       }
@@ -2714,9 +2731,10 @@
               <span class="case-card-date">${dateStr}</span>
             </div>
           </div>`;
-        grid.appendChild(card);
+        fragment.appendChild(card);
       });
 
+      grid.appendChild(fragment);
       grid.classList.add('visible');
     }
 
@@ -2925,7 +2943,7 @@
     let imgFilters = { brightness: 1, contrast: 1, saturation: 1 };
 
     function applyImgFilters() {
-      const el = document.querySelector('.openseadragon-container');
+      const el = document.querySelector('.openseadragon-canvas');
       if (el) el.style.filter =
         `brightness(${imgFilters.brightness}) contrast(${imgFilters.contrast}) saturate(${imgFilters.saturation})`;
     }
@@ -3181,33 +3199,31 @@
         // Subsequent loads — swap image with opacity crossfade
         viewer.viewport.setRotation(0);
         viewerRotation = 0;
-        viewer.world.removeAllItems();
         viewer.addTiledImage({
           tileSource: { type: 'image', url: c.image },
           opacity: 0,
           success: function(e) {
             const item = e.item;
             let opacity = 0;
-            const fadeIn = setInterval(() => {
+            function fade() {
               opacity = Math.min(1, opacity + 0.08);
               item.setOpacity(opacity);
-              if (opacity >= 1) {
-                clearInterval(fadeIn);
+              if (opacity < 1) {
+                requestAnimationFrame(fade);
+              } else {
                 document.getElementById('viewer-loading').classList.add('hidden');
-                // Mirror 'open' handler logic for subsequent loads
                 addAnnotationOverlays(c);
                 updateChipRotations();
                 updateZoomLabel();
                 updateScaleBar();
                 updateNavCount();
                 syncRulerCanvas();
-                // Ruler button visibility
                 const rb = document.getElementById('ruler-btn');
                 if (rb) rb.style.display = c.px_per_um ? 'inline-flex' : 'none';
-                // Re-apply filters after image swap
                 applyImgFilters();
               }
-            }, 16);
+            }
+            requestAnimationFrame(fade);
           }
         });
       }
@@ -3231,7 +3247,10 @@
       viewer.addHandler('open-failed', () => {
         document.querySelector('#viewer-loading div:last-child').textContent = 'Failed to load image';
       });
-      viewer.addHandler('rotate', updateChipRotations);
+      viewer.addHandler('rotate', () => {
+        viewerRotation = viewer.viewport.getRotation();
+        updateChipRotations();
+      });
       viewer.addHandler('zoom', () => {
         updateZoomLabel();
         document.getElementById('ann-tooltip')?.classList.remove('visible');
