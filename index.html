@@ -2699,10 +2699,12 @@
       viewer.addHandler('open', () => {
         loading.classList.add('hidden');
         addAnnotationOverlays(c);
+        updateChipRotations();
         document.getElementById('viewer-toolbar').classList.add('visible');
         updateZoomLabel();
       });
       viewer.addHandler('zoom', updateZoomLabel);
+      viewer.addHandler('rotate', updateChipRotations);
       viewer.addHandler('open-failed', () => { loading.querySelector('div:last-child').textContent = 'Failed to load image'; });
     }
 
@@ -2719,6 +2721,13 @@
       const homeZoom = viewer.viewport.getHomeZoom();
       const level = homeZoom > 0 ? zoom / homeZoom : zoom;
       document.getElementById('vt-zoom-label').textContent = level.toFixed(1) + '×';
+    }
+
+    function updateChipRotations() {
+      const deg = viewer ? viewer.viewport.getRotation() : 0;
+      document.querySelectorAll('.ann-chip').forEach(el => {
+        el.style.transform = `translateY(-100%) rotate(${-deg}deg)`;
+      });
     }
 
     function rotateViewer(delta) {
@@ -2756,6 +2765,7 @@
         );
         viewer.addOverlay({ element: el, location: vpRect }); overlays.push(el);
       });
+      updateChipRotations();
     }
 
     function clearOverlays() {
