@@ -126,8 +126,35 @@ Collapsed state is held in a client-side `Set` (`collapsedGroups`) — not persi
 A search input at the top of the sidebar filters by `title`, `specimen_type`, or `date`.
 Each sidebar item shows the descriptive `title` and the `date` (not the grid).
 
+Filtering logic is extracted into `getFilteredCases()` (shared by sidebar and preview grid).
+`buildSidebar()` calls `buildPreviewGrid()` at the end, so search and filter pills automatically
+drive the preview grid without separate wiring.
+
 At ~30+ cases, consider whether additional filtering (by magnification, date range) is needed.
-The current architecture supports this by extending the search filter in `buildSidebar()`.
+The current architecture supports this by extending `getFilteredCases()`.
+
+---
+
+## Viewer controls
+
+A floating toolbar (`#viewer-toolbar`) sits at `bottom: 16px; left: 50%` inside `.viewer-wrap`.
+It is shown in the `open` handler of `loadViewer()` and hidden in `hideViewer()`. Controls:
+rotate CCW/CW (90° steps via `viewer.viewport.setRotation()`), zoom out/in (`zoomBy`), zoom
+indicator updated on every OSD `zoom` event, and a reset button (`goHome()` + rotation 0).
+`viewerRotation` (module-level integer) tracks cumulative rotation and resets to 0 on each
+`loadViewer()` call.
+
+---
+
+## Preview grid (empty-state replacement)
+
+When `activeCase === null`, `.viewer-wrap` shows `#preview-grid` — a responsive card grid of
+all filtered cases (sorted by date descending). Cards show the composite JPEG thumbnail, title,
+specimen pill, and YYYY-MM date. Clicking a card calls `selectCase(c)`.
+
+`buildPreviewGrid()` exits early (hides the grid) when `activeCase !== null`, so it is safe to
+call unconditionally from `buildSidebar()`. The grid is explicitly hidden in `loadViewer()` and
+rebuilt/shown by the next `buildSidebar()` call (e.g. from `goHome()`).
 
 ---
 
