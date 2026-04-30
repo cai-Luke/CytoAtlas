@@ -859,7 +859,10 @@
       }
     }
 
+    .sb-filter-wrap { display: none; padding: 4px 8px 6px; flex-wrap: wrap; gap: 5px; }
+
     @media (max-width: 599px) {
+      .sb-filter-wrap { display: flex; }
       .stat-pill {
         display: none;
       }
@@ -1070,6 +1073,24 @@
       background: var(--ann5);
     }
 
+    #ann-tooltip {
+      position: absolute;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 12;
+      opacity: 0;
+      transition: opacity .12s;
+    }
+    #ann-tooltip.visible { opacity: 1; }
+
     /* ── INFO PANEL ── */
     .info-panel {
       width: 340px;
@@ -1089,6 +1110,37 @@
       padding: 18px 20px 14px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
+    }
+
+    .ip-nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .ip-nav-btn {
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      color: var(--text3);
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+    }
+    .ip-nav-btn:hover:not(:disabled) {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .ip-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .ip-nav-count {
+      font-size: 11px;
+      color: var(--text4);
+      font-family: 'DM Mono', monospace;
     }
 
     .ip-title {
@@ -1729,6 +1781,23 @@
     }
 
     /* ── VIEWER CONTROLS TOOLBAR ── */
+    #viewer-toolbar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 4px 6px;
+      box-shadow: var(--shadow);
+      z-index: 15;
+    }
+
+    /* Keep legacy class for JS that uses .viewer-toolbar */
     .viewer-toolbar {
       position: absolute;
       bottom: 16px;
@@ -1745,17 +1814,19 @@
       z-index: 15;
     }
 
+    #viewer-toolbar.visible,
     .viewer-toolbar.visible {
       display: flex;
     }
 
+    #viewer-toolbar button,
     .vt-btn {
       width: 32px;
       height: 32px;
-      border-radius: var(--radius);
       border: none;
       background: transparent;
       color: var(--text3);
+      border-radius: var(--radius);
       font-size: 16px;
       cursor: pointer;
       display: flex;
@@ -1764,9 +1835,16 @@
       transition: background .12s, color .12s;
     }
 
+    #viewer-toolbar button:hover,
     .vt-btn:hover {
-      color: var(--text);
       background: var(--surface2);
+      color: var(--text);
+    }
+
+    #viewer-toolbar button.active,
+    .vt-btn.active {
+      background: var(--accent-dim);
+      color: var(--accent);
     }
 
     .vt-btn.small {
@@ -1784,15 +1862,104 @@
     }
 
     @media (max-width: 599px) {
+      #viewer-toolbar button,
       .vt-btn {
         width: 28px;
         height: 28px;
       }
 
+      #viewer-toolbar,
       .viewer-toolbar {
         gap: 1px;
       }
     }
+
+    /* ── SCALE BAR ── */
+    #scale-bar {
+      position: absolute;
+      bottom: 60px;
+      left: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      z-index: 8;
+      pointer-events: none;
+    }
+
+    #scale-bar.hidden {
+      display: none;
+    }
+
+    #scale-bar-line {
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.6);
+      min-width: 40px;
+    }
+
+    #scale-bar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,.8);
+    }
+
+    /* ── RULER CANVAS ── */
+    #ruler-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      pointer-events: none;
+    }
+
+    /* ── IMG FILTER POPOVER ── */
+    #img-filter-popover {
+      position: absolute;
+      bottom: 58px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      width: 220px;
+      box-shadow: var(--shadow-lg);
+      z-index: 16;
+      display: none;
+    }
+
+    #img-filter-popover.visible { display: block; }
+
+    .ifp-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    .ifp-row input[type=range] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+
+    #ifp-reset {
+      width: 100%;
+      padding: 5px;
+      font-size: 12px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text3);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    #ifp-reset:hover { color: var(--text); border-color: var(--accent); }
 
     /* ── PREVIEW GRID ── */
     .preview-grid {
@@ -1990,6 +2157,7 @@
         <div class="sb-search-wrap">
           <input type="search" class="sb-search" id="sb-search" placeholder="Search…" oninput="buildSidebar()">
         </div>
+        <div class="sb-filter-wrap" id="sb-filter-wrap"></div>
         <div class="sb-list" id="sb-list"></div>
       </div>
 
@@ -1998,11 +2166,35 @@
           <div class="preview-grid" id="preview-grid"></div>
           <div id="osd-viewer" style="display:none"></div>
           <div id="edit-layer" style="display:none"></div>
+          <div id="ann-tooltip"></div>
           <div class="viewer-loading hidden" id="viewer-loading">
             <div class="viewer-loading-inner">
               <div class="wl-spinner"></div>
               <div style="font-size:12px;color:var(--text3)">Loading composite…</div>
             </div>
+          </div>
+          <!-- Scale bar (Spec 1) -->
+          <div id="scale-bar" class="hidden">
+            <div id="scale-bar-line"></div>
+            <span id="scale-bar-label"></span>
+          </div>
+          <!-- Ruler canvas — pointer-events toggled by measureMode (Spec 1) -->
+          <canvas id="ruler-canvas"></canvas>
+          <!-- Brightness / Contrast / Saturation popover (Spec 5) -->
+          <div id="img-filter-popover">
+            <div class="ifp-row">
+              <span>Brightness</span>
+              <input type="range" id="ifp-brightness" min="0.5" max="1.5" step="0.05" value="1">
+            </div>
+            <div class="ifp-row">
+              <span>Contrast</span>
+              <input type="range" id="ifp-contrast" min="0.5" max="1.5" step="0.05" value="1">
+            </div>
+            <div class="ifp-row">
+              <span>Saturation</span>
+              <input type="range" id="ifp-saturation" min="0" max="2" step="0.05" value="1">
+            </div>
+            <button id="ifp-reset">Reset</button>
           </div>
           <div class="viewer-toolbar" id="viewer-toolbar">
             <button class="vt-btn small" title="Rotate CCW" onclick="rotateViewer(-90)">↺</button>
@@ -2011,6 +2203,8 @@
             <button class="vt-btn" title="Zoom In" onclick="viewerZoomBy(1.6)">+</button>
             <button class="vt-btn small" title="Rotate CW" onclick="rotateViewer(90)">↻</button>
             <button class="vt-btn small" title="Reset view" onclick="resetViewer()">⌂</button>
+            <button class="vt-btn small" id="ruler-btn" title="Ruler" onclick="toggleMeasureMode()" style="display:none">↔</button>
+            <button class="vt-btn small" id="brightness-btn" title="Brightness" onclick="toggleFilterPopover()">☀</button>
           </div>
         </div>
 
@@ -2018,6 +2212,11 @@
           <div class="ip-header">
             <div class="ip-title" id="ip-title"></div>
             <div class="ip-meta-row" id="ip-meta-row"></div>
+            <div class="ip-nav-row">
+              <button class="ip-nav-btn" id="ip-prev" onclick="stepCase(-1)">← Prev</button>
+              <span class="ip-nav-count" id="ip-nav-count"></span>
+              <button class="ip-nav-btn" id="ip-next" onclick="stepCase(1)">Next →</button>
+            </div>
           </div>
           <div class="ip-body" id="ip-body">
             <div>
@@ -2351,24 +2550,68 @@
     // ─────────────────────────────────────────────────────────────────────────
     function buildFilterPills() {
       const wrap = document.getElementById('filter-pills');
+      const sbWrap = document.getElementById('sb-filter-wrap');
       wrap.innerHTML = '';
+      if (sbWrap) sbWrap.innerHTML = '';
+      
       const allPill = document.createElement('button');
       allPill.className = 'filter-pill active'; allPill.textContent = 'All';
-      allPill.onclick = () => setFilter('All'); allPill.id = 'fp-All';
+      allPill.dataset.filter = 'All';
+      allPill.onclick = () => setFilter('All');
       wrap.appendChild(allPill);
+      
       SPECIMEN_TYPES.forEach(st => {
         const pill = document.createElement('button');
         pill.className = 'filter-pill'; pill.textContent = st;
-        pill.onclick = () => setFilter(st); pill.id = `fp-${st}`;
+        pill.dataset.filter = st;
+        pill.onclick = () => setFilter(st);
         wrap.appendChild(pill);
       });
+
+      // Clone for mobile sidebar
+      if (sbWrap) {
+        wrap.querySelectorAll('.filter-pill').forEach(p => {
+          const clone = p.cloneNode(true);
+          clone.onclick = p.onclick;
+          sbWrap.appendChild(clone);
+        });
+      }
     }
 
     function setFilter(f) {
       activeFilter = f;
-      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-      document.getElementById(`fp-${f}`).classList.add('active');
+      document.querySelectorAll('.filter-pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.filter === f);
+      });
       buildSidebar();
+      updateNavCount();
+    }
+
+    function stepCase(dir) {
+      const filtered = getFilteredCases();
+      if (filtered.length === 0) return;
+      const idx = filtered.findIndex(c => c.id === activeCase.id);
+      if (idx === -1) {
+        selectCase(filtered[0]);
+        return;
+      }
+      const nextIdx = (idx + dir + filtered.length) % filtered.length;
+      selectCase(filtered[nextIdx]);
+    }
+
+    function updateNavCount() {
+      const filtered = getFilteredCases();
+      const idx = filtered.findIndex(c => c.id === activeCase.id);
+      const countEl = document.getElementById('ip-nav-count');
+      if (countEl) {
+        countEl.textContent = idx >= 0 ? `${idx + 1} / ${filtered.length}` : '';
+      }
+      const btnPrev = document.getElementById('ip-prev');
+      const btnNext = document.getElementById('ip-next');
+      if (btnPrev && btnNext) {
+        btnPrev.disabled = filtered.length <= 1;
+        btnNext.disabled = filtered.length <= 1;
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -2675,44 +2918,345 @@
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Viewer
+    // Viewer — Spec 7: Smooth Transitions + Spec 5: Filters + Spec 1: Scale/Ruler
     // ─────────────────────────────────────────────────────────────────────────
+
+    // Spec 5 state
+    let imgFilters = { brightness: 1, contrast: 1, saturation: 1 };
+
+    function applyImgFilters() {
+      const el = document.querySelector('.openseadragon-container');
+      if (el) el.style.filter =
+        `brightness(${imgFilters.brightness}) contrast(${imgFilters.contrast}) saturate(${imgFilters.saturation})`;
+    }
+
+    function resetImgFilters() {
+      imgFilters = { brightness: 1, contrast: 1, saturation: 1 };
+      const els = ['ifp-brightness', 'ifp-contrast', 'ifp-saturation'];
+      els.forEach(id => { const el = document.getElementById(id); if (el) el.value = 1; });
+      applyImgFilters();
+    }
+
+    function toggleFilterPopover() {
+      document.getElementById('img-filter-popover').classList.toggle('visible');
+    }
+
+    // Wire up filter sliders (runs once after DOM ready)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('ifp-brightness').addEventListener('input', e => {
+        imgFilters.brightness = parseFloat(e.target.value); applyImgFilters();
+      });
+      document.getElementById('ifp-contrast').addEventListener('input', e => {
+        imgFilters.contrast = parseFloat(e.target.value); applyImgFilters();
+      });
+      document.getElementById('ifp-saturation').addEventListener('input', e => {
+        imgFilters.saturation = parseFloat(e.target.value); applyImgFilters();
+      });
+      document.getElementById('ifp-reset').addEventListener('click', resetImgFilters);
+
+      // Close popover when clicking outside
+      document.addEventListener('click', e => {
+        const popover = document.getElementById('img-filter-popover');
+        const btn = document.getElementById('brightness-btn');
+        if (popover.classList.contains('visible') && !popover.contains(e.target) && e.target !== btn) {
+          popover.classList.remove('visible');
+        }
+      });
+
+      // Size ruler canvas to match viewer-wrap
+      syncRulerCanvas();
+      window.addEventListener('resize', syncRulerCanvas);
+    });
+
+    // Spec 1 state
+    let measureMode = false;
+    let rulerPoints = [];   // up to 2 fractional points [{fx,fy}, ...]
+
+    function syncRulerCanvas() {
+      const canvas = document.getElementById('ruler-canvas');
+      const wrap = document.getElementById('viewer-wrap');
+      if (!canvas || !wrap) return;
+      const r = wrap.getBoundingClientRect();
+      canvas.width = r.width;
+      canvas.height = r.height;
+      redrawRulerCanvas();
+    }
+
+    function toggleMeasureMode() {
+      measureMode = !measureMode;
+      const canvas = document.getElementById('ruler-canvas');
+      const btn = document.getElementById('ruler-btn');
+      if (canvas) canvas.style.pointerEvents = measureMode ? 'auto' : 'none';
+      if (btn) btn.classList.toggle('active', measureMode);
+      if (!measureMode) {
+        rulerPoints = [];
+        redrawRulerCanvas();
+      }
+    }
+
+    function updateScaleBar() {
+      if (!viewer || !activeCase || !activeCase.px_per_um) {
+        document.getElementById('scale-bar').classList.add('hidden');
+        return;
+      }
+      const px_per_um = activeCase.px_per_um;
+      // Pick a nice round micrometer length that maps to 60–150 CSS px
+      const zoom = viewer.viewport.getZoom(true);
+      const tiledImage = viewer.world.getItemAt(0);
+      if (!tiledImage) return;
+      const contentSize = tiledImage.getContentSize();
+      // image px per viewport unit at current zoom
+      const imgPxPerVpUnit = contentSize.x; // image is 1 viewport unit wide at home
+      const scaleFactor = zoom * document.getElementById('viewer-wrap').getBoundingClientRect().width / imgPxPerVpUnit;
+      // scaleFactor = screen px / image px
+      const screenPxPerUm = px_per_um * scaleFactor;
+
+      // Choose bar length
+      const candidates = [10, 20, 50, 100, 200, 500, 1000];
+      let barUm = candidates[0];
+      for (const um of candidates) {
+        barUm = um;
+        if (um * screenPxPerUm >= 60) break;
+      }
+      const barPx = barUm * screenPxPerUm;
+
+      const barEl = document.getElementById('scale-bar');
+      const lineEl = document.getElementById('scale-bar-line');
+      const labelEl = document.getElementById('scale-bar-label');
+      lineEl.style.width = barPx + 'px';
+      labelEl.textContent = barUm >= 1000 ? (barUm / 1000) + ' mm' : barUm + ' µm';
+      barEl.classList.remove('hidden');
+    }
+
+    function redrawRulerCanvas() {
+      const canvas = document.getElementById('ruler-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!viewer || rulerPoints.length === 0) return;
+
+      // Convert fractional image coords → screen coords
+      function fracToCanvas(pt) {
+        const tiledImage = viewer.world.getItemAt(0);
+        if (!tiledImage) return { x: 0, y: 0 };
+        const size = tiledImage.getContentSize();
+        const imgPt = new OpenSeadragon.Point(pt.fx * size.x, pt.fy * size.y);
+        const vpPt = viewer.viewport.imageToViewportCoordinates(imgPt);
+        const winPt = viewer.viewport.viewportToWindowCoordinates(vpPt);
+        const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
+        return { x: winPt.x - wrapRect.left, y: winPt.y - wrapRect.top };
+      }
+
+      const p0 = fracToCanvas(rulerPoints[0]);
+
+      // Draw first point
+      ctx.save();
+      ctx.strokeStyle = '#fff';
+      ctx.fillStyle = 'rgba(124,158,248,0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = 'rgba(0,0,0,.6)';
+      ctx.shadowBlur = 3;
+      ctx.beginPath(); ctx.arc(p0.x, p0.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      if (rulerPoints.length === 2) {
+        const p1 = fracToCanvas(rulerPoints[1]);
+
+        // Line
+        ctx.beginPath();
+        ctx.setLineDash([5, 3]);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+
+        // Second point
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(p1.x, p1.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+        // Distance label
+        if (activeCase && activeCase.px_per_um) {
+          const tiledImage = viewer.world.getItemAt(0);
+          const size = tiledImage.getContentSize();
+          const dx = (rulerPoints[1].fx - rulerPoints[0].fx) * size.x;
+          const dy = (rulerPoints[1].fy - rulerPoints[0].fy) * size.y;
+          const distPx = Math.sqrt(dx * dx + dy * dy);
+          const distUm = distPx / activeCase.px_per_um;
+          const label = distUm >= 1000
+            ? (distUm / 1000).toFixed(2) + ' mm'
+            : distUm.toFixed(1) + ' µm';
+
+          const mx = (p0.x + p1.x) / 2, my = (p0.y + p1.y) / 2;
+          ctx.font = '500 12px DM Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(14,17,24,.75)';
+          const tw = ctx.measureText(label).width;
+          ctx.fillRect(mx - tw / 2 - 5, my - 16, tw + 10, 20);
+          ctx.fillStyle = '#fff';
+          ctx.fillText(label, mx, my - 2);
+        }
+      }
+      ctx.restore();
+    }
+
+    // Ruler mouse events — attached once, guard by measureMode
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('ruler-canvas');
+      canvas.addEventListener('click', e => {
+        if (!measureMode || !viewer) return;
+        const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
+        const sx = e.clientX - wrapRect.left, sy = e.clientY - wrapRect.top;
+        const winPt = new OpenSeadragon.Point(e.clientX, e.clientY);
+        const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
+        const tiledImage = viewer.world.getItemAt(0);
+        if (!tiledImage) return;
+        const size = tiledImage.getContentSize();
+        const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
+        const fx = Math.max(0, Math.min(1, imgPt.x / size.x));
+        const fy = Math.max(0, Math.min(1, imgPt.y / size.y));
+
+        if (rulerPoints.length < 2) {
+          rulerPoints.push({ fx, fy });
+        } else {
+          rulerPoints = [{ fx, fy }]; // start new measurement
+        }
+        redrawRulerCanvas();
+      });
+
+      canvas.addEventListener('mousemove', e => {
+        if (!measureMode || !viewer || rulerPoints.length !== 1) return;
+        const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
+        const winPt = new OpenSeadragon.Point(e.clientX, e.clientY);
+        const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
+        const tiledImage = viewer.world.getItemAt(0);
+        if (!tiledImage) return;
+        const size = tiledImage.getContentSize();
+        const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
+        const fx = Math.max(0, Math.min(1, imgPt.x / size.x));
+        const fy = Math.max(0, Math.min(1, imgPt.y / size.y));
+        // Draw preview with ghost second point
+        const savedSecond = rulerPoints[1];
+        rulerPoints[1] = { fx, fy };
+        redrawRulerCanvas();
+        rulerPoints.splice(1, 1); // restore
+      });
+    });
+
+    // Spec 7: loadViewer — keeps OSD alive, swaps via addTiledImage crossfade
     function loadViewer(c) {
       document.getElementById('preview-grid').classList.remove('visible');
       document.getElementById('osd-viewer').style.display = 'block';
-      const loading = document.getElementById('viewer-loading');
-      loading.classList.remove('hidden');
-      if (viewer) { viewer.destroy(); viewer = null; }
-      overlays = [];
-      viewerRotation = 0;
-      viewer = OpenSeadragon({
-        id: 'osd-viewer',
-        prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/',
-        tileSources: { type: 'image', url: c.image },
-        showNavigator: true, navigatorPosition: 'BOTTOM_RIGHT', navigatorSizeRatio: 0.15,
-        minZoomLevel: 0.5, maxZoomLevel: 20, visibilityRatio: 0.5, constrainDuringPan: false,
-        animationTime: 0.4,
-        gestureSettingsMouse: { scrollToZoom: true, clickToZoom: false, dblClickToZoom: true },
-        gestureSettingsTouch: { pinchToZoom: true, dblClickToZoom: true },
-        showZoomControl: false, showHomeControl: false, showFullPageControl: false
-      });
+      document.getElementById('viewer-loading').classList.remove('hidden');
+      clearOverlays();
+      if (editMode) exitEditMode();
+
+      // Reset per-case state (Spec 5 + 1)
+      resetImgFilters();
+      document.getElementById('img-filter-popover').classList.remove('visible');
+      measureMode = false;
+      rulerPoints = [];
+      const rulerCanvas = document.getElementById('ruler-canvas');
+      if (rulerCanvas) {
+        rulerCanvas.style.pointerEvents = 'none';
+        rulerCanvas.getContext('2d').clearRect(0, 0, rulerCanvas.width, rulerCanvas.height);
+      }
+      const rulerBtn = document.getElementById('ruler-btn');
+      if (rulerBtn) rulerBtn.classList.remove('active');
+
+      if (!viewer) {
+        // First load — create OSD instance
+        viewer = OpenSeadragon({
+          id: 'osd-viewer',
+          prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/',
+          tileSources: { type: 'image', url: c.image },
+          showNavigator: true, navigatorPosition: 'BOTTOM_RIGHT', navigatorSizeRatio: 0.15,
+          minZoomLevel: 0.5, maxZoomLevel: 20, visibilityRatio: 0.5,
+          constrainDuringPan: false, animationTime: 0.4,
+          gestureSettingsMouse: { scrollToZoom: true, clickToZoom: false, dblClickToZoom: true },
+          gestureSettingsTouch: { pinchToZoom: true, dblClickToZoom: true },
+          showZoomControl: false, showHomeControl: false, showFullPageControl: false
+        });
+        attachViewerHandlers(c);
+      } else {
+        // Subsequent loads — swap image with opacity crossfade
+        viewer.viewport.setRotation(0);
+        viewerRotation = 0;
+        viewer.world.removeAllItems();
+        viewer.addTiledImage({
+          tileSource: { type: 'image', url: c.image },
+          opacity: 0,
+          success: function(e) {
+            const item = e.item;
+            let opacity = 0;
+            const fadeIn = setInterval(() => {
+              opacity = Math.min(1, opacity + 0.08);
+              item.setOpacity(opacity);
+              if (opacity >= 1) {
+                clearInterval(fadeIn);
+                document.getElementById('viewer-loading').classList.add('hidden');
+                // Mirror 'open' handler logic for subsequent loads
+                addAnnotationOverlays(c);
+                updateChipRotations();
+                updateZoomLabel();
+                updateScaleBar();
+                updateNavCount();
+                syncRulerCanvas();
+                // Ruler button visibility
+                const rb = document.getElementById('ruler-btn');
+                if (rb) rb.style.display = c.px_per_um ? 'inline-flex' : 'none';
+                // Re-apply filters after image swap
+                applyImgFilters();
+              }
+            }, 16);
+          }
+        });
+      }
+    }
+
+    function attachViewerHandlers(c) {
       viewer.addHandler('open', () => {
-        loading.classList.add('hidden');
-        addAnnotationOverlays(c);
+        document.getElementById('viewer-loading').classList.add('hidden');
+        addAnnotationOverlays(activeCase);
         updateChipRotations();
         document.getElementById('viewer-toolbar').classList.add('visible');
         updateZoomLabel();
+        updateScaleBar();
+        updateNavCount();
+        syncRulerCanvas();
+        applyImgFilters();
+        // Ruler button visibility
+        const rb = document.getElementById('ruler-btn');
+        if (rb) rb.style.display = activeCase.px_per_um ? 'inline-flex' : 'none';
       });
-      viewer.addHandler('zoom', updateZoomLabel);
+      viewer.addHandler('open-failed', () => {
+        document.querySelector('#viewer-loading div:last-child').textContent = 'Failed to load image';
+      });
       viewer.addHandler('rotate', updateChipRotations);
-      viewer.addHandler('open-failed', () => { loading.querySelector('div:last-child').textContent = 'Failed to load image'; });
+      viewer.addHandler('zoom', () => {
+        updateZoomLabel();
+        document.getElementById('ann-tooltip')?.classList.remove('visible');
+      });
+      viewer.addHandler('pan', () => {
+        document.getElementById('ann-tooltip')?.classList.remove('visible');
+      });
+      viewer.addHandler('viewport-change', () => {
+        updateScaleBar();
+        redrawRulerCanvas();
+      });
     }
 
     function hideViewer() {
-      if (viewer) { viewer.destroy(); viewer = null; } overlays = [];
+      if (viewer) { viewer.destroy(); viewer = null; }
+      overlays = [];
       document.getElementById('osd-viewer').style.display = 'none';
       document.getElementById('viewer-loading').classList.add('hidden');
       document.getElementById('viewer-toolbar').classList.remove('visible');
+      document.getElementById('img-filter-popover').classList.remove('visible');
+      document.getElementById('scale-bar').classList.add('hidden');
+      const rulerCanvas = document.getElementById('ruler-canvas');
+      if (rulerCanvas) rulerCanvas.getContext('2d').clearRect(0, 0, rulerCanvas.width, rulerCanvas.height);
+      measureMode = false;
+      rulerPoints = [];
     }
 
     function updateZoomLabel() {
@@ -2761,6 +3305,22 @@
         el.className = 'ann-marker'; el.dataset.n = i + 1;
         el.innerHTML = `<div class="ann-chip">${i + 1}</div>`;
         el.onclick = e => { e.stopPropagation(); highlightAnnotation(i); };
+
+        el.addEventListener('mouseenter', e => {
+          const tt = document.getElementById('ann-tooltip');
+          if (!tt) return;
+          tt.textContent = ann.label;
+          const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
+          const markerRect = el.getBoundingClientRect();
+          tt.style.left = (markerRect.left - wrapRect.left) + 'px';
+          tt.style.top  = (markerRect.top  - wrapRect.top - 32) + 'px';
+          tt.classList.add('visible');
+        });
+
+        el.addEventListener('mouseleave', () => {
+          document.getElementById('ann-tooltip')?.classList.remove('visible');
+        });
+
         const vpRect = viewer.viewport.imageToViewportRectangle(
           ann.x1 * size.x, ann.y1 * size.y, (ann.x2 - ann.x1) * size.x, (ann.y2 - ann.y1) * size.y
         );
@@ -2771,6 +3331,7 @@
 
     function clearOverlays() {
       overlays.forEach(el => { try { viewer.removeOverlay(el); } catch (e) { } }); overlays = [];
+      document.getElementById('ann-tooltip')?.classList.remove('visible');
     }
 
     function highlightAnnotation(idx) {
