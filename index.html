@@ -2726,6 +2726,7 @@
     function updateChipRotations() {
       const deg = viewer ? viewer.viewport.getRotation() : 0;
       document.querySelectorAll('.ann-chip').forEach(el => {
+        el.style.transformOrigin = 'bottom left';
         el.style.transform = `translateY(-100%) rotate(${-deg}deg)`;
       });
     }
