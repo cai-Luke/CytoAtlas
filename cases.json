@@ -39,7 +39,7 @@
     },
     {
       "id": "Case_20260415_161024",
-      "title": "Macrophage-dominant, mild neutrophilia",
+      "title": "Macrophage-dominant BAL with bronchial lining cells",
       "specimen_type": "BAL",
       "magnification": "100\u00d7",
       "grid": "3\u00d73",
@@ -47,20 +47,20 @@
       "image": "assets/Case_20260415_161024_composite_trimmed.jpg",
       "annotations": [
         {
-          "x1": 0.4,
-          "y1": 0.1,
+          "x1": 0.42479138007380074,
+          "y1": 0.1345148748225944,
           "x2": 0.6,
           "y2": 0.27,
           "label": "Mucus/Debris",
           "description": "An amorphous collection of basophilic mucinous material and cellular debris. Such background elements are typical in BAL specimens and should not be mistaken for necrotic tumor or organisms."
         },
         {
-          "x1": 0.34,
-          "y1": 0.48,
-          "x2": 0.39,
-          "y2": 0.54,
-          "label": "Neutrophil",
-          "description": "A segmented polymorphonuclear leukocyte. Its presence in small numbers is an expected finding, though increased numbers would suggest acute airway inflammation."
+          "x1": 0.7575766199261991,
+          "y1": 0.5527806351644082,
+          "x2": 0.8819507601476013,
+          "y2": 0.6981595360413523,
+          "label": "Bronchial Lining Cells",
+          "description": "A cluster of ciliated columnar epithelial cells. These cells, featuring apical cilia and basally located nuclei, are shed from the bronchial mucosa. Their presence is a common finding in bronchoalveolar lavage specimens, representing the sampling of the conducting airways."
         },
         {
           "x1": 0.3,
@@ -71,7 +71,7 @@
           "description": "A large mononuclear cell with abundant foamy or vacuolated cytoplasm and a relatively small, often eccentric nucleus. These cells are the predominant cell type in normal bronchoalveolar lavage fluid."
         }
       ],
-      "interpretation": "This Bronchoalveolar Lavage (BAL) sample demonstrates a cellular profile dominated by alveolar macrophages, which exhibit characteristic foamy cytoplasm and eccentric nuclei, consistent with normal clearance of inhaled material. Scattered neutrophils are present, suggesting a mild inflammatory response, but there is no evidence of acute bacterial pneumonia or significant eosinophilia. The background contains moderate amounts of mucinous debris and proteinaceous material, which is typical for a BAL specimen. No malignant cells or fungal elements are identified in this field.",
+      "interpretation": "This Bronchoalveolar Lavage (BAL) sample demonstrates a cellular profile dominated by alveolar macrophages, which exhibit characteristic foamy cytoplasm and eccentric nuclei. Occasional clusters of bronchial lining cells (ciliated columnar epithelium) are present, representing sampling of the bronchial mucosa. The background contains moderate amounts of mucinous debris and proteinaceous material, which is typical for a BAL specimen. No malignant cells, fungal elements, or significant acute inflammation are identified in this field.",
       "ai_generated": true
     },
     {
