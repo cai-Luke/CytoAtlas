@@ -1412,6 +1412,88 @@
       padding: 12px 0;
     }
 
+    /* ── AUTHOR ANNOTATION EDITING ── */
+    .ip-ann-edit-label {
+      width: 100%;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: inherit;
+      padding: 4px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .ip-ann-edit-label:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .ip-ann-edit-desc {
+      width: 100%;
+      min-height: 64px;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--text3);
+      font-family: inherit;
+      padding: 6px 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      resize: vertical;
+    }
+    .ip-ann-edit-desc:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .ip-ann-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .ip-ann-delete-btn {
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--red-dim);
+      background: transparent;
+      color: var(--red);
+      font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+      opacity: .7;
+    }
+    .ip-ann-delete-btn:hover {
+      opacity: 1;
+      background: var(--red-dim);
+      border-color: var(--red);
+    }
+
+    .ip-add-ann-btn {
+      width: 100%;
+      padding: 8px 0;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px dashed var(--border2);
+      background: transparent;
+      color: var(--text4);
+      font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+      margin-top: 4px;
+    }
+    .ip-add-ann-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
     /* ── EDIT LAYER ── */
     #edit-layer {
       position: absolute;
@@ -3082,7 +3164,7 @@
         const has = c.annotations && c.annotations.length > 0;
         document.getElementById('ap-reroll').disabled = !has;
         document.getElementById('ap-edit').disabled = !has;
-        document.getElementById('ap-export').disabled = !has;
+        document.getElementById('ap-export').disabled = false; // always available in author mode
         document.getElementById('ap-status').textContent = '';
       } else {
         ap.classList.remove('visible');
@@ -3092,28 +3174,97 @@
     function renderAnnotationList(c) {
       const list = document.getElementById('ip-ann-list');
       if (!c.annotations || c.annotations.length === 0) {
-        list.innerHTML = '<div class="ip-empty">No annotations yet.</div>'; return;
+        list.innerHTML = '<div class="ip-empty">No annotations yet.</div>';
+        if (IS_AUTHOR) {
+          const addBtn = document.createElement('button');
+          addBtn.className = 'ip-add-ann-btn';
+          addBtn.textContent = '+ Add Annotation';
+          addBtn.onclick = () => addAnnotation();
+          list.appendChild(addBtn);
+        }
+        return;
       }
       list.innerHTML = '';
       c.annotations.forEach((ann, i) => {
         const item = document.createElement('div');
         item.className = 'ip-ann-item'; item.dataset.idx = i; item.dataset.n = i + 1;
         item.onclick = () => panToAnnotation(i);
-        item.innerHTML = `
-          <div class="ip-ann-label">
-            <span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>${ann.label}
-          </div>
-          <div class="ip-ann-desc">${ann.description || ''}</div>
-          <button class="ip-ann-share-btn" title="Copy annotation link"
-                  onclick="event.stopPropagation(); shareAnnotation(${i})">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-            </svg>
-          </button>`;
+
+        if (IS_AUTHOR) {
+          item.innerHTML = `
+            <div class="ip-ann-label" style="display:flex;align-items:center;gap:6px;margin-bottom:0;">
+              <span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>
+              <input type="text" class="ip-ann-edit-label" value="${(ann.label || '').replace(/"/g, '&quot;')}"
+                     onclick="event.stopPropagation()"
+                     oninput="activeCase.annotations[${i}].label=this.value">
+            </div>
+            <textarea class="ip-ann-edit-desc"
+                      onclick="event.stopPropagation()"
+                      oninput="activeCase.annotations[${i}].description=this.value"
+                      placeholder="Teaching commentary…">${ann.description || ''}</textarea>
+            <div class="ip-ann-actions">
+              <button class="ip-ann-delete-btn" onclick="event.stopPropagation(); deleteAnnotation(${i})"
+                      title="Delete this annotation">Delete</button>
+            </div>`;
+        } else {
+          item.innerHTML = `
+            <div class="ip-ann-label">
+              <span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>${ann.label}
+            </div>
+            <div class="ip-ann-desc">${ann.description || ''}</div>
+            <button class="ip-ann-share-btn" title="Copy annotation link"
+                    onclick="event.stopPropagation(); shareAnnotation(${i})">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+            </button>`;
+        }
         list.appendChild(item);
       });
+
+      if (IS_AUTHOR) {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'ip-add-ann-btn';
+        addBtn.textContent = '+ Add Annotation';
+        addBtn.onclick = () => addAnnotation();
+        list.appendChild(addBtn);
+      }
+    }
+
+    function deleteAnnotation(idx) {
+      if (!activeCase || !activeCase.annotations) return;
+      activeCase.annotations.splice(idx, 1);
+      clearOverlays();
+      addAnnotationOverlays(activeCase);
+      renderAnnotationList(activeCase);
+      // Update author panel button states
+      const has = activeCase.annotations.length > 0;
+      document.getElementById('ap-edit').disabled = !has;
+      document.getElementById('ap-export').disabled = false;
+      if (editMode) { exitEditMode(); enterEditMode(); }
+      showToast('Annotation deleted');
+    }
+
+    function addAnnotation() {
+      if (!activeCase) return;
+      if (!activeCase.annotations) activeCase.annotations = [];
+      if (activeCase.annotations.length >= 5) {
+        showToast('Maximum 5 annotations'); return;
+      }
+      // Place a default box in the center
+      activeCase.annotations.push({
+        x1: 0.35, y1: 0.35, x2: 0.65, y2: 0.65,
+        label: 'New annotation', description: ''
+      });
+      clearOverlays();
+      addAnnotationOverlays(activeCase);
+      renderAnnotationList(activeCase);
+      document.getElementById('ap-edit').disabled = false;
+      document.getElementById('ap-export').disabled = false;
+      if (editMode) { exitEditMode(); enterEditMode(); }
+      showToast('Annotation added — use Edit Boxes to position it');
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -3392,6 +3543,12 @@
               if (opacity < 1) {
                 requestAnimationFrame(fade);
               } else {
+                // Remove old tiled images so getItemAt(0) always
+                // points to the current case's image — prevents
+                // coordinate corruption when editing boxes across cases.
+                while (viewer.world.getItemCount() > 1) {
+                  viewer.world.removeItem(viewer.world.getItemAt(0));
+                }
                 document.getElementById('viewer-loading').classList.add('hidden');
                 addAnnotationOverlays(c);
                 updateChipRotations();
@@ -3591,7 +3748,11 @@
         rerollBtn.disabled = false; document.getElementById('ap-export').disabled = false;
       } catch (err) {
         statusEl.textContent = `✗ Error: ${err.message}`;
-      } finally { genBtn.disabled = false; }
+      } finally {
+        genBtn.disabled = false;
+        rerollBtn.disabled = false;
+        document.getElementById('ap-export').disabled = false;
+      }
     }
 
     function buildAnnotationPrompt(c) {
@@ -3662,7 +3823,7 @@ Exact schema:
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ inlineData: { mimeType: 'image/jpeg', data: base64Image } }, { text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+          generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
         })
       });
       if (!resp.ok) { const err = await resp.text(); throw new Error(`Gemini API ${resp.status}: ${err.slice(0, 200)}`); }
@@ -3670,9 +3831,22 @@ Exact schema:
     }
 
     function parseGeminiResponse(resp) {
-      let text = (resp.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+      const candidate = resp.candidates?.[0];
+      if (!candidate) throw new Error('No candidates in Gemini response');
+      // Detect truncation before attempting parse
+      if (candidate.finishReason === 'MAX_TOKENS') {
+        throw new Error('Response truncated (MAX_TOKENS) — try Reroll for a shorter response');
+      }
+      let text = (candidate.content?.parts || []).map(p => p.text || '').join('');
       text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-      const parsed = JSON.parse(text);
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (e) {
+        // Provide actionable context for parse failures
+        const preview = text.slice(0, 120).replace(/\n/g, ' ');
+        throw new Error(`Invalid JSON from Gemini: ${e.message}\nResponse starts: "${preview}…"`);
+      }
       if (!parsed.annotations || !Array.isArray(parsed.annotations)) throw new Error('Response missing annotations array');
       parsed.annotations = parsed.annotations.slice(0, 5).map(a => {
         const x1 = Math.max(0, Math.min(1, Number(a.x1) || 0.1)), y1 = Math.max(0, Math.min(1, Number(a.y1) || 0.1));
