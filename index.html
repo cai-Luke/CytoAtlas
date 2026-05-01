@@ -1405,6 +1405,49 @@
       background: var(--accent-dim);
     }
 
+    /* Author-mode per-annotation action buttons */
+    .ip-ann-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .ip-ann-rewrite-btn {
+      padding: 3px 8px;
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text3);
+      transition: color .15s, border-color .15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .ip-ann-rewrite-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .ip-ann-delete-btn {
+      padding: 3px 8px;
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text3);
+      transition: color .15s, border-color .15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .ip-ann-delete-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
     .ip-empty {
       font-size: 12px;
       color: var(--text4);
@@ -2459,8 +2502,9 @@
           <a href="https://cai-luke.github.io/HemeAtlas" target="_blank">HemeAtlas</a> —
           Peripheral blood cell morphology reference for medical education.
         </div>
-        <div class="about-text" style="margin-top:12px;color:var(--text4);font-size:11px">
-          Built by Luke and Claude · 2026
+        <div class="about-text" style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; color:var(--text4); font-size:11px">
+          <span>Built by Luke, Claude, and Gemini &middot; 2026</span>
+          <button onclick="toggleAuthorModeURL()" style="background:transparent; border:1px solid var(--border2); color:var(--text4); border-radius:4px; padding:3px 8px; cursor:pointer; font-family:inherit; font-size:10px; transition:all 0.15s;" onmouseover="this.style.color='var(--text)'; this.style.borderColor='var(--accent)';" onmouseout="this.style.color='var(--text4)'; this.style.borderColor='var(--border2)';">Toggle Author Mode</button>
         </div>
       </div>
     </div>
@@ -2660,12 +2704,20 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => { anim = new PipelineAnim(); });
+    document.addEventListener('DOMContentLoaded', () => {
+      anim = new PipelineAnim(); // Start welcome animation immediately (sync)
+      init();                    // Fire main setup (async, loads cases.json in parallel)
+    });
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Init
-    // ─────────────────────────────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', init);
+    function toggleAuthorModeURL() {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('author')) {
+        url.searchParams.delete('author');
+      } else {
+        url.searchParams.set('author', 'true');
+      }
+      window.location.href = url.toString();
+    }
 
     async function init() {
       try {
@@ -2701,6 +2753,62 @@
 
         // Attach search listener
         document.getElementById('sb-search').addEventListener('input', handleSearch);
+
+        // Wire filter sliders
+        document.getElementById('ifp-brightness').addEventListener('input', e => {
+          imgFilters.brightness = parseFloat(e.target.value); applyImgFilters();
+        });
+        document.getElementById('ifp-contrast').addEventListener('input', e => {
+          imgFilters.contrast = parseFloat(e.target.value); applyImgFilters();
+        });
+        document.getElementById('ifp-saturation').addEventListener('input', e => {
+          imgFilters.saturation = parseFloat(e.target.value); applyImgFilters();
+        });
+        document.getElementById('ifp-reset').addEventListener('click', resetImgFilters);
+        // Close filter popover when clicking outside
+        document.addEventListener('click', e => {
+          const popover = document.getElementById('img-filter-popover');
+          const btn = document.getElementById('brightness-btn');
+          if (popover.classList.contains('visible') && !popover.contains(e.target) && e.target !== btn) {
+            popover.classList.remove('visible');
+          }
+        });
+
+        // Wire ruler canvas
+        syncRulerCanvas();
+        window.addEventListener('resize', syncRulerCanvas);
+        const rulerCanvas = document.getElementById('ruler-canvas');
+        rulerCanvas.addEventListener('click', e => {
+          if (!measureMode || !viewer) return;
+          const winPt = new OpenSeadragon.Point(e.clientX, e.clientY);
+          const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
+          const tiledImage = viewer.world.getItemAt(0);
+          if (!tiledImage) return;
+          const size = tiledImage.getContentSize();
+          const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
+          const fx = Math.max(0, Math.min(1, imgPt.x / size.x));
+          const fy = Math.max(0, Math.min(1, imgPt.y / size.y));
+          if (rulerPoints.length < 2) {
+            rulerPoints.push({ fx, fy });
+          } else {
+            rulerPoints = [{ fx, fy }];
+          }
+          redrawRulerCanvas();
+        });
+        rulerCanvas.addEventListener('mousemove', e => {
+          if (!measureMode || !viewer || rulerPoints.length !== 1) return;
+          const winPt = new OpenSeadragon.Point(e.clientX, e.clientY);
+          const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
+          const tiledImage = viewer.world.getItemAt(0);
+          if (!tiledImage) return;
+          const size = tiledImage.getContentSize();
+          const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
+          const fx = Math.max(0, Math.min(1, imgPt.x / size.x));
+          const fy = Math.max(0, Math.min(1, imgPt.y / size.y));
+          rulerPoints[1] = { fx, fy };
+          redrawRulerCanvas();
+          rulerPoints.splice(1, 1);
+        });
 
       } catch (err) {
         const errEl = document.getElementById('wl-error');
@@ -3028,6 +3136,18 @@
       btn.textContent = 'Edit Boxes'; btn.classList.remove('edit-active');
     }
 
+    function deleteAnnotation(idx) {
+      if (!activeCase || !activeCase.annotations) return;
+      if (confirm('Are you sure you want to delete this region of interest?')) {
+        activeCase.annotations.splice(idx, 1);
+        renderAnnotationList(activeCase);
+        clearOverlays();
+        addAnnotationOverlays(activeCase);
+        if (editMode) buildEditBoxes();
+        document.getElementById('ap-export').disabled = false;
+      }
+    }
+
     function fracToScreen(fx, fy) {
       const tiledImage = viewer.world.getItemAt(0), size = tiledImage.getContentSize();
       const imgPt = new OpenSeadragon.Point(fx * size.x, fy * size.y);
@@ -3068,6 +3188,14 @@
     }
 
     function attachEditBoxEvents(el, idx) {
+      // Converts absolute window coords to raw image fractions — no clamping
+      const winToFrac = (wx, wy) => {
+        const vpPt = viewer.viewport.windowToViewportCoordinates(new OpenSeadragon.Point(wx, wy));
+        const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
+        const size = viewer.world.getItemAt(0).getContentSize();
+        return { fx: imgPt.x / size.x, fy: imgPt.y / size.y };
+      };
+
       el.addEventListener('mousedown', e => {
         if (e.target.classList.contains('edit-handle')) return;
         e.preventDefault(); e.stopPropagation();
@@ -3077,15 +3205,21 @@
         const startX = e.clientX, startY = e.clientY;
         const origX1 = ann.x1, origY1 = ann.y1, origX2 = ann.x2, origY2 = ann.y2;
         const onMove = ev => {
-          const origin = screenToFrac(0, 0), delta = screenToFrac(ev.clientX - startX, ev.clientY - startY);
-          const dfx = delta.fx - origin.fx, dfy = delta.fy - origin.fy;
+          const startFrac = winToFrac(startX, startY);
+          const currentFrac = winToFrac(ev.clientX, ev.clientY);
+          const dfx = currentFrac.fx - startFrac.fx;
+          const dfy = currentFrac.fy - startFrac.fy;
           const w = origX2 - origX1, h = origY2 - origY1;
-          ann.x1 = Math.max(0, Math.min(1 - w, origX1 + dfx)); ann.y1 = Math.max(0, Math.min(1 - h, origY1 + dfy));
-          ann.x2 = ann.x1 + w; ann.y2 = ann.y1 + h; positionEditBox(el, ann);
+          ann.x1 = Math.max(0, Math.min(1 - w, origX1 + dfx));
+          ann.y1 = Math.max(0, Math.min(1 - h, origY1 + dfy));
+          ann.x2 = ann.x1 + w;
+          ann.y2 = ann.y1 + h;
+          positionEditBox(el, ann);
         };
         const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
         document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
       });
+
       el.querySelectorAll('.edit-handle').forEach(handle => {
         handle.addEventListener('mousedown', e => {
           e.preventDefault(); e.stopPropagation();
@@ -3094,8 +3228,10 @@
           const orig = { x1: ann.x1, y1: ann.y1, x2: ann.x2, y2: ann.y2 };
           const MIN_SIZE = 0.02;
           const onMove = ev => {
-            const origin = screenToFrac(0, 0), delta = screenToFrac(ev.clientX - startX, ev.clientY - startY);
-            const dfx = delta.fx - origin.fx, dfy = delta.fy - origin.fy;
+            const startFrac = winToFrac(startX, startY);
+            const currentFrac = winToFrac(ev.clientX, ev.clientY);
+            const dfx = currentFrac.fx - startFrac.fx;
+            const dfy = currentFrac.fy - startFrac.fy;
             if (dir.includes('n')) ann.y1 = Math.max(0, Math.min(orig.y2 - MIN_SIZE, orig.y1 + dfy));
             if (dir.includes('s')) ann.y2 = Math.min(1, Math.max(orig.y1 + MIN_SIZE, orig.y2 + dfy));
             if (dir.includes('w')) ann.x1 = Math.max(0, Math.min(orig.x2 - MIN_SIZE, orig.x1 + dfx));
@@ -3235,16 +3371,18 @@
 
     function deleteAnnotation(idx) {
       if (!activeCase || !activeCase.annotations) return;
-      activeCase.annotations.splice(idx, 1);
-      clearOverlays();
-      addAnnotationOverlays(activeCase);
-      renderAnnotationList(activeCase);
-      // Update author panel button states
-      const has = activeCase.annotations.length > 0;
-      document.getElementById('ap-edit').disabled = !has;
-      document.getElementById('ap-export').disabled = false;
-      if (editMode) { exitEditMode(); enterEditMode(); }
-      showToast('Annotation deleted');
+      if (confirm('Are you sure you want to delete this region of interest?')) {
+        activeCase.annotations.splice(idx, 1);
+        clearOverlays();
+        addAnnotationOverlays(activeCase);
+        renderAnnotationList(activeCase);
+        // Update author panel button states
+        const has = activeCase.annotations.length > 0;
+        document.getElementById('ap-edit').disabled = !has;
+        document.getElementById('ap-export').disabled = false;
+        if (editMode) { exitEditMode(); enterEditMode(); }
+        showToast('Annotation deleted');
+      }
     }
 
     function addAnnotation() {
@@ -3290,33 +3428,6 @@
     function toggleFilterPopover() {
       document.getElementById('img-filter-popover').classList.toggle('visible');
     }
-
-    // Wire up filter sliders (runs once after DOM ready)
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('ifp-brightness').addEventListener('input', e => {
-        imgFilters.brightness = parseFloat(e.target.value); applyImgFilters();
-      });
-      document.getElementById('ifp-contrast').addEventListener('input', e => {
-        imgFilters.contrast = parseFloat(e.target.value); applyImgFilters();
-      });
-      document.getElementById('ifp-saturation').addEventListener('input', e => {
-        imgFilters.saturation = parseFloat(e.target.value); applyImgFilters();
-      });
-      document.getElementById('ifp-reset').addEventListener('click', resetImgFilters);
-
-      // Close popover when clicking outside
-      document.addEventListener('click', e => {
-        const popover = document.getElementById('img-filter-popover');
-        const btn = document.getElementById('brightness-btn');
-        if (popover.classList.contains('visible') && !popover.contains(e.target) && e.target !== btn) {
-          popover.classList.remove('visible');
-        }
-      });
-
-      // Size ruler canvas to match viewer-wrap
-      syncRulerCanvas();
-      window.addEventListener('resize', syncRulerCanvas);
-    });
 
     // Spec 1 state
     let measureMode = false;
@@ -3448,49 +3559,6 @@
       }
       ctx.restore();
     }
-
-    // Ruler mouse events — attached once, guard by measureMode
-    document.addEventListener('DOMContentLoaded', () => {
-      const canvas = document.getElementById('ruler-canvas');
-      canvas.addEventListener('click', e => {
-        if (!measureMode || !viewer) return;
-        const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
-        const sx = e.clientX - wrapRect.left, sy = e.clientY - wrapRect.top;
-        const winPt = new OpenSeadragon.Point(e.clientX, e.clientY);
-        const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
-        const tiledImage = viewer.world.getItemAt(0);
-        if (!tiledImage) return;
-        const size = tiledImage.getContentSize();
-        const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
-        const fx = Math.max(0, Math.min(1, imgPt.x / size.x));
-        const fy = Math.max(0, Math.min(1, imgPt.y / size.y));
-
-        if (rulerPoints.length < 2) {
-          rulerPoints.push({ fx, fy });
-        } else {
-          rulerPoints = [{ fx, fy }]; // start new measurement
-        }
-        redrawRulerCanvas();
-      });
-
-      canvas.addEventListener('mousemove', e => {
-        if (!measureMode || !viewer || rulerPoints.length !== 1) return;
-        const wrapRect = document.getElementById('viewer-wrap').getBoundingClientRect();
-        const winPt = new OpenSeadragon.Point(e.clientX, e.clientY);
-        const vpPt = viewer.viewport.windowToViewportCoordinates(winPt);
-        const tiledImage = viewer.world.getItemAt(0);
-        if (!tiledImage) return;
-        const size = tiledImage.getContentSize();
-        const imgPt = viewer.viewport.viewportToImageCoordinates(vpPt);
-        const fx = Math.max(0, Math.min(1, imgPt.x / size.x));
-        const fy = Math.max(0, Math.min(1, imgPt.y / size.y));
-        // Draw preview with ghost second point
-        const savedSecond = rulerPoints[1];
-        rulerPoints[1] = { fx, fy };
-        redrawRulerCanvas();
-        rulerPoints.splice(1, 1); // restore
-      });
-    });
 
     // Spec 7: loadViewer — keeps OSD alive, swaps via addTiledImage crossfade
     function loadViewer(c) {
@@ -3746,6 +3814,7 @@
         document.getElementById('ap-edit').disabled = false;
         statusEl.textContent = `✓ Generated ${parsed.annotations.length} annotations`;
         rerollBtn.disabled = false; document.getElementById('ap-export').disabled = false;
+        setTimeout(() => { if (statusEl.textContent.includes('✓')) statusEl.textContent = ''; }, 4000);
       } catch (err) {
         statusEl.textContent = `✗ Error: ${err.message}`;
       } finally {
@@ -3810,6 +3879,50 @@ Exact schema:
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(bmp, 0, 0, w, h);
       return canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+    }
+
+    // Part A: crop the composite to the bounding box of one annotation
+    async function getCropBase64(imageUrl, ann) {
+      const resp = await fetch(imageUrl);
+      const blob = await resp.blob();
+      const bmp = await createImageBitmap(blob);
+      const sx = Math.floor(ann.x1 * bmp.width);
+      const sy = Math.floor(ann.y1 * bmp.height);
+      const sw = Math.floor((ann.x2 - ann.x1) * bmp.width);
+      const sh = Math.floor((ann.y2 - ann.y1) * bmp.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = sw; canvas.height = sh;
+      canvas.getContext('2d').drawImage(bmp, sx, sy, sw, sh, 0, 0, sw, sh);
+      return canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+    }
+
+    // Part B: ask Gemini to rewrite label + description for one specific annotation box
+    async function regenerateAnnotationText(idx) {
+      if (!activeCase || !activeCase.annotations[idx]) return;
+      const apiKey = document.getElementById('ap-key').value.trim();
+      if (!apiKey) { showToast('Enter a Gemini API key'); return; }
+      const ann = activeCase.annotations[idx];
+      const statusEl = document.getElementById('ap-status');
+      statusEl.textContent = `Cropping region ${idx + 1} for analysis…`;
+      try {
+        const base64 = await getCropBase64(activeCase.image, ann);
+        statusEl.textContent = `Asking Gemini to analyze region ${idx + 1}…`;
+        const prompt = `You are a hematopathologist. This is a cropped region of interest from a body fluid cytospin (${activeCase.specimen_type}). Provide a concise label and a 2-3 sentence teaching description of the main diagnostic feature shown in this exact crop.\nCRITICAL: Respond ONLY with valid JSON. Exact schema:\n{ "label": "Feature name", "description": "Teaching commentary..." }`;
+        const response = await callGemini(apiKey, base64, prompt);
+        const candidate = response.candidates?.[0];
+        if (!candidate) throw new Error('No candidates returned');
+        let text = (candidate.content?.parts || []).map(p => p.text || '').join('');
+        text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+        const parsed = JSON.parse(text);
+        ann.label = parsed.label || ann.label;
+        ann.description = parsed.description || ann.description;
+        renderAnnotationList(activeCase);
+        statusEl.textContent = `\u2713 Region ${idx + 1} text updated`;
+        setTimeout(() => { if (statusEl.textContent.includes('\u2713 Region')) statusEl.textContent = ''; }, 4000);
+        document.getElementById('ap-export').disabled = false;
+      } catch (err) {
+        statusEl.textContent = `\u2717 Error on region ${idx + 1}: ${err.message}`;
+      }
     }
 
     // ── GEMINI API CALL ──────────────────────────────────────────────────────────
