@@ -742,6 +742,46 @@
       background: var(--surface2);
     }
 
+    .ip-ann-item.active {
+      background: var(--accent-dim);
+      border-color: rgba(124, 158, 248, .2);
+    }
+
+    .ip-ann-share-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text4);
+      opacity: 0;
+      transition: opacity .15s, color .15s, border-color .15s;
+    }
+
+    .ip-ann-item:hover .ip-ann-share-btn,
+    .ip-ann-item.active .ip-ann-share-btn {
+      opacity: 1;
+    }
+
+    .ip-ann-share-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .sb-item-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      flex: 1;
+      line-height: 1.3;
+    }
+
     .sb-item.active {
       background: var(--accent-dim);
       border-color: rgba(124, 158, 248, .2);
@@ -1151,6 +1191,26 @@
       margin-bottom: 4px;
     }
 
+    .ip-share-btn {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text3);
+      transition: color .15s, border-color .15s, background .15s;
+    }
+
+    .ip-share-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
     .ip-meta-row {
       display: flex;
       gap: 6px;
@@ -1316,6 +1376,33 @@
       font-size: 12px;
       color: var(--text3);
       line-height: 1.7;
+    }
+
+    .ip-ann-share-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text4);
+      opacity: 0;
+      transition: opacity .15s, color .15s, border-color .15s;
+    }
+
+    .ip-ann-item:hover .ip-ann-share-btn,
+    .ip-ann-item.active .ip-ann-share-btn {
+      opacity: 1;
+    }
+
+    .ip-ann-share-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
     }
 
     .ip-empty {
@@ -2308,6 +2395,7 @@
     // ─────────────────────────────────────────────────────────────────────────
     let CASES = [], SPECIMEN_TYPES = [], activeFilter = 'All';
     let activeCase = null, viewer = null, overlays = [];
+    let pendingAnnIdx = null; // 0-based ann to activate after viewer opens; null = none
     let casesReady = false, viewerRotation = 0;
     const IS_AUTHOR = new URLSearchParams(location.search).has('author');
 
@@ -2515,6 +2603,12 @@
         buildSidebar();
         document.getElementById('stat-total').textContent = `${CASES.length} cases`;
 
+        window.addEventListener('hashchange', () => {
+          // Only respond if the app shell is visible (not on the welcome screen)
+          if (!document.getElementById('app').classList.contains('visible')) return;
+          applyHash();
+        });
+
         // Unlock enter button
         casesReady = true;
         const btn = document.getElementById('wl-enter');
@@ -2546,6 +2640,58 @@
       if (!casesReady) return;
       document.getElementById('welcome').classList.add('hidden');
       document.getElementById('app').classList.add('visible');
+      applyHash();
+    }
+
+    function applyHash() {
+      const raw = window.location.hash.slice(1); // strip leading '#'
+      if (!raw) return;
+
+      const parts = raw.split('/ann/');
+      const caseId = parts[0];
+      const annN = parts[1] ? parseInt(parts[1], 10) : null; // 1-based from URL
+      const targetAnnIdx = (annN !== null && !isNaN(annN)) ? annN - 1 : null; // convert to 0-based
+
+      const c = CASES.find(x => x.id === caseId);
+      if (!c) return; // unknown id — do nothing, show home
+
+      // ── Short-circuit: already viewing this case ─────────────────────────────
+      if (activeCase && activeCase.id === caseId) {
+        if (targetAnnIdx !== null) panToAnnotation(targetAnnIdx);
+        return;
+      }
+
+      // New case: store annotation target, then load
+      pendingAnnIdx = targetAnnIdx;
+      selectCase(c);
+    }
+
+    function pushHash(caseId, annIdx = null) {
+      // annIdx is 0-based internally; encode as 1-based
+      let hash = '';
+      if (caseId) {
+        hash = '#' + caseId;
+        if (annIdx !== null) hash += '/ann/' + (annIdx + 1);
+      }
+      // Use replaceState to avoid polluting browser history on every annotation click.
+      // Only use pushState for case-level navigation (meaningful back-button steps).
+      const method = (annIdx !== null) ? 'replaceState' : 'pushState';
+      history[method](null, '', hash || location.pathname + location.search);
+    }
+
+    function shareCaseLink() {
+      if (!activeCase) return;
+      pushHash(activeCase.id);
+      navigator.clipboard.writeText(location.href)
+        .then(() => showToast('Case link copied'))
+        .catch(() => showToast('Copy: ' + location.href));
+    }
+
+    function shareAnnotation(annIdx) { // annIdx 0-based
+      pushHash(activeCase.id, annIdx);
+      navigator.clipboard.writeText(location.href)
+        .then(() => showToast('Annotation link copied'))
+        .catch(() => showToast('Copy: ' + location.href));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -2744,11 +2890,15 @@
     function selectCase(c) {
       if (editMode) exitEditMode();
       if (isOverlayMode()) closeSidebar();
-      activeCase = c; buildSidebar(); showInfoPanel(c); loadViewer(c);
+      activeCase = c;
+      pushHash(c.id);
+      buildSidebar(); showInfoPanel(c); loadViewer(c);
     }
 
     function goHome() {
-      activeCase = null; buildSidebar(); hideViewer();
+      activeCase = null;
+      pushHash(null);
+      buildSidebar(); hideViewer();
       document.getElementById('info-panel').classList.add('hidden');
     }
 
@@ -2881,10 +3031,29 @@
     // ─────────────────────────────────────────────────────────────────────────
     function showInfoPanel(c) {
       document.getElementById('info-panel').classList.remove('hidden');
+
+      const shareBtnHtml = `
+        <button class="ip-share-btn" title="Copy case link" onclick="shareCaseLink()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </button>`;
+
       if (IS_AUTHOR) {
-        document.getElementById('ip-title').innerHTML = `<input type="text" class="ip-edit-input" value="${c.title}" oninput="activeCase.title=this.value; buildSidebar();">`;
+        document.getElementById('ip-title').innerHTML = `
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" class="ip-edit-input" value="${c.title}"
+                   oninput="activeCase.title=this.value; buildSidebar();">
+            ${shareBtnHtml}
+          </div>`;
       } else {
-        document.getElementById('ip-title').textContent = c.title;
+        document.getElementById('ip-title').innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+            <span>${c.title}</span>
+            ${shareBtnHtml}
+          </div>`;
       }
       const metaRow = document.getElementById('ip-meta-row');
       metaRow.innerHTML = '';
@@ -2930,7 +3099,19 @@
         const item = document.createElement('div');
         item.className = 'ip-ann-item'; item.dataset.idx = i; item.dataset.n = i + 1;
         item.onclick = () => panToAnnotation(i);
-        item.innerHTML = `<div class="ip-ann-label"><span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>${ann.label}</div><div class="ip-ann-desc">${ann.description || ''}</div>`;
+        item.innerHTML = `
+          <div class="ip-ann-label">
+            <span class="ip-ann-num" data-n="${i + 1}">${i + 1}</span>${ann.label}
+          </div>
+          <div class="ip-ann-desc">${ann.description || ''}</div>
+          <button class="ip-ann-share-btn" title="Copy annotation link"
+                  onclick="event.stopPropagation(); shareAnnotation(${i})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </button>`;
         list.appendChild(item);
       });
     }
@@ -3221,6 +3402,12 @@
                 const rb = document.getElementById('ruler-btn');
                 if (rb) rb.style.display = c.px_per_um ? 'inline-flex' : 'none';
                 applyImgFilters();
+
+                if (pendingAnnIdx !== null) {
+                  const idxToGo = pendingAnnIdx;
+                  pendingAnnIdx = null;
+                  setTimeout(() => panToAnnotation(idxToGo), 50);
+                }
               }
             }
             requestAnimationFrame(fade);
@@ -3243,6 +3430,11 @@
         // Ruler button visibility
         const rb = document.getElementById('ruler-btn');
         if (rb) rb.style.display = activeCase.px_per_um ? 'inline-flex' : 'none';
+
+        if (pendingAnnIdx !== null) {
+          panToAnnotation(pendingAnnIdx);
+          pendingAnnIdx = null;
+        }
       });
       viewer.addHandler('open-failed', () => {
         document.querySelector('#viewer-loading div:last-child').textContent = 'Failed to load image';
