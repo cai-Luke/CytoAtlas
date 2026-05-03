@@ -1728,6 +1728,7 @@
       z-index: 20;
       overflow: hidden;
       cursor: default;
+      pointer-events: none;
     }
 
     .edit-box {
@@ -1735,6 +1736,7 @@
       box-sizing: border-box;
       border: 1.5px solid;
       cursor: move;
+      pointer-events: auto;
     }
 
     .edit-box[data-n="1"] {
@@ -2640,7 +2642,7 @@
             <div class="ap-row">
               <button class="ap-btn primary" id="ap-generate" onclick="generateAnnotations()">Generate
                 Annotations</button>
-              <button class="ap-btn" id="ap-reroll" onclick="generateAnnotations()" disabled>Reroll</button>
+              <button class="ap-btn" id="ap-reroll" onclick="rerollAnnotations()" disabled>Reroll</button>
               <button class="ap-btn" id="ap-edit" onclick="toggleEditMode()" disabled>Edit Boxes</button>
               <button class="ap-btn" id="ap-reviewed"
                 onclick="activeCase.ai_generated=false; showInfoPanel(activeCase); showToast('Marked as Reviewed')"
@@ -3358,7 +3360,7 @@
 
     function enterEditMode() {
       if (!activeCase || !viewer) return;
-      editMode = true; viewer.setMouseNavEnabled(false);
+      editMode = true;
       const layer = document.getElementById('edit-layer');
       layer.style.display = 'block'; buildEditBoxes();
       const btn = document.getElementById('ap-edit');
@@ -3366,7 +3368,7 @@
     }
 
     function exitEditMode() {
-      editMode = false; if (viewer) viewer.setMouseNavEnabled(true);
+      editMode = false;
       const layer = document.getElementById('edit-layer');
       layer.style.display = 'none'; layer.innerHTML = '';
       clearOverlays(); addAnnotationOverlays(activeCase);
@@ -4133,6 +4135,14 @@
     // Author mode — Gemini
     // ─────────────────────────────────────────────────────────────────────────
     async function generateAnnotations() {
+      await _runGeneration({ preserveTitle: false });
+    }
+
+    async function rerollAnnotations() {
+      await _runGeneration({ preserveTitle: true });
+    }
+
+    async function _runGeneration({ preserveTitle }) {
       if (!activeCase || !viewer) return;
       const apiKey = document.getElementById('ap-key').value.trim();
       if (!apiKey) { showToast('Enter a Gemini API key'); return; }
@@ -4148,12 +4158,13 @@
         const parsed = parseGeminiResponse(response);
         activeCase.annotations = parsed.annotations;
         activeCase.interpretation = parsed.interpretation;
-        if (parsed.title) activeCase.title = parsed.title;
+        if (!preserveTitle && parsed.title) activeCase.title = parsed.title;
         activeCase.ai_generated = true;
         buildSidebar();
         showInfoPanel(activeCase); clearOverlays(); addAnnotationOverlays(activeCase);
         document.getElementById('ap-edit').disabled = false;
-        statusEl.textContent = `✓ Generated ${parsed.annotations.length} annotations`;
+        const verb = preserveTitle ? 'Rerolled' : 'Generated';
+        statusEl.textContent = `✓ ${verb} ${parsed.annotations.length} annotations`;
         rerollBtn.disabled = false; document.getElementById('ap-export').disabled = false;
         setTimeout(() => { if (statusEl.textContent.includes('✓')) statusEl.textContent = ''; }, 4000);
       } catch (err) {
