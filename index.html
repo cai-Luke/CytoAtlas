@@ -1122,6 +1122,22 @@
         padding: 16px;
         gap: 12px;
       }
+
+      /* OSD touch fix: annotation overlays sit above the OSD canvas and absorb
+         touch events before they reach the canvas's innerTracker. Setting
+         pointer-events: none lets touches fall through to the canvas so panning
+         and pinch-zoom work. The chip keeps pointer-events: auto so tapping the
+         numbered badge still fires onclick (click bubbles through the none parent). */
+      .ann-marker { pointer-events: none; }
+      .ann-chip   { pointer-events: auto; }
+
+      /* Info panel scroll fix: iOS Safari won't momentum-scroll an overflow:auto
+         div nested inside overflow:hidden parents. Switching to scroll + the
+         webkit hint reliably enables touch scrolling. */
+      .ip-body {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
     }
 
     /* ── MAIN AREA ── */
@@ -1445,6 +1461,7 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
+      overscroll-behavior: contain;
     }
 
     .ip-section-label {
