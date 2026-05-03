@@ -8,7 +8,7 @@ Sister project: HemeAtlas (https://cai-luke.github.io/HemeAtlas)
 
 ## Working with Claude on this repo
 
-index.html is large (~3500 lines). Never re-emit it in full in a chat response.
+index.html is large (~4100 lines). Never re-emit it in full in a chat response.
 Edits should be expressed as targeted str_replace patches (old → new).
 Specs can be delegated to an external agent for implementation.
 
@@ -182,6 +182,35 @@ editable input in the info panel header and rebuilt in the sidebar.
 
 ---
 
+## Quiz mode
+
+Append `?quiz=true` to the URL to enable the teaching/assessment flow. Intentionally
+unlisted — accessible via the About modal ("Toggle Quiz Mode" button) or direct URL.
+Quiz and Author modes are mutually exclusive; `toggleQuizModeURL()` removes `?author`
+before navigating, and vice versa.
+
+**Module-level state** (reset on each `selectCase()` call):
+- `quizCurrentIdx` — 0-based index of the annotation currently being quizzed
+- `quizResponses[]` — one string per annotation, persists within the session
+- `quizRevealed[]` — whether "Reveal" was clicked for each annotation
+
+**Behaviour vs. default and author modes:**
+
+| | Interpretation | Ann list | Hover tooltip | Info panel bottom |
+|---|---|---|---|---|
+| Default | Shown | Label + description | `ann.label` | — |
+| Author | Textarea | Editable fields | `ann.label` | author-panel |
+| Quiz | Hidden | Number + ✓/— status | `Region N` | quiz-panel |
+
+**Quiz panel** (`#quiz-panel`, mirrors `.author-panel` layout): progress bar, region
+label, response textarea, Prev/Next/Focus/Reveal buttons. "Reveal" toggles the
+`qp-reveal-block` which shows the actual annotation label and description.
+
+**Quiz mode is read-only** with respect to case data — it never modifies `activeCase`,
+`cases.json`, or any annotation fields.
+
+---
+
 ## Adding a case
 
 1. Run `stitch_composite_v12.py` and `trim_composite.py` on the case directory (done outside this repo).
@@ -211,9 +240,33 @@ and `assets/Case_20260418_155022_composite_trimmed.jpg`.
 ## Gemini 3.1 Pro Preview API
 
 Model string: `gemini-3.1-pro-preview` (hardcoded in `callGemini()` in `index.html`).
+**`gemini-3.1-pro` (no `-preview` suffix) returns a 404** — the stable release is not yet
+on the AI Studio endpoint. Do not remove the `-preview` suffix.
 If this model is deprecated, update the model string — it is the only change needed.
 The API key is entered by the user at runtime and stored in `localStorage` under
 `cytoatlas_gemini_key`. It is never committed to the repo.
+
+REST endpoint (verified April 2026):
+https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key={API_KEY}
+`v1beta` is correct for `generateContent`. Do not change the API version segment.
+
+Generation config (`callGemini()` in `index.html`): `temperature: 0.7`, no `thinkingConfig`.
+The temperature allows variation across rerolls while staying usable. Do not add a
+`thinkingConfig` block — that constraint applies to a different project (BenchVision), not here.
+
+Do not substitute any of the following — all are wrong for this endpoint:
+
+| String | Why wrong |
+|---|---|
+| `gemini-3.1-pro` | No `-preview` suffix → 404 |
+| `gemini-2.5-pro` | Older generation; superseded |
+| `gemini-2.5-pro-preview-05-06` | Preview of an older model; stale |
+| `gemini-2.0-pro-exp` | Two generations behind |
+| `gemini-1.5-pro` | Three generations behind |
+| `gemini-pro` | Alias to a deprecated model |
+
+A 404 on the model string means the name may need updating — not that it should be
+replaced with a known-older one. Flag to Luke.
 
 ---
 
@@ -225,8 +278,9 @@ schemas in these blocks. Each contains an inline comment explaining the decision
 Treat that comment as authoritative and do not second-guess it:
 
 - `index.html` → `callGemini()` — Gemini API call for annotation generation. Uses
-  `gemini-3.1-pro-preview` model string. Intentional and verified working. Do not change
-  the model name or generation config schema.
+  `gemini-3.1-pro-preview` model string and `v1beta` endpoint. Both are intentional and
+  verified working. Do not change the model name, API version segment, or generation
+  config schema (temperature 0.7, no thinkingConfig).
 
 If a bug is suspected in this function, flag it to Luke rather than making a unilateral
 change. Luke will verify against the live API or consult Gemini directly.
