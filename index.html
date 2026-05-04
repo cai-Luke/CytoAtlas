@@ -71,75 +71,14 @@
     }
 
     /* ══════════════════════════════════════════════════
-       WELCOME
+       ABOUT MODAL ANIMATION WRAPPER
     ══════════════════════════════════════════════════ */
-    .welcome {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      z-index: 500;
-      transition: opacity .4s ease;
-    }
-
-    .welcome.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Logo row */
-    .wl-logo {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: 22px;
-      color: var(--text);
-      letter-spacing: -.3px;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .wl-logo em {
-      font-style: italic;
-      color: var(--accent);
-    }
-
-    .wl-logo-sep {
-      width: 1px;
-      height: 16px;
-      background: var(--border2);
-      margin: 0 10px;
-    }
-
-    .wl-logo-sub {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--text4);
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    /* Animation card */
-    .wl-card {
-      width: min(640px, calc(100vw - 40px));
+    .about-anim-wrap {
+      width: 100%;
       display: flex;
       flex-direction: column;
       gap: 14px;
-    }
-
-    /* Section label above stage */
-    .wl-stage-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 9.5px;
-      font-weight: 400;
-      letter-spacing: .18em;
-      color: var(--text4);
-      text-transform: uppercase;
-      padding-left: 2px;
+      margin: 8px 0;
     }
 
     /* Animation stage */
@@ -408,102 +347,15 @@
       box-shadow: 0 0 5px rgba(124, 158, 248, .6);
     }
 
-    /* Enter button row */
-    .wl-enter-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 4px;
-    }
 
-    .wl-hint-text {
-      font-family: 'DM Mono', monospace;
-      font-size: 9.5px;
-      color: var(--text4);
-      letter-spacing: .06em;
-      transition: opacity .3s;
-    }
-
-    .wl-hint-text.ready {
-      opacity: 0;
-    }
-
-    .wl-enter-btn {
-      padding: 8px 22px;
-      border-radius: var(--radius);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid var(--accent);
-      background: var(--accent-dim);
-      color: var(--accent);
-      font-family: 'DM Sans', sans-serif;
-      transition: all .2s;
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(4px);
-      transition: all .25s ease;
-    }
-
-    .wl-enter-btn.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .wl-enter-btn:hover {
-      background: var(--accent);
-      color: #0a0d17;
-    }
-
-    /* Loading pulse on button */
-    .wl-enter-btn.loading {
-      border-color: var(--border2);
-      color: var(--text4);
-      background: transparent;
-      cursor: default;
-    }
-
-    .wl-enter-btn.loading::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 1.5px;
-      width: 35%;
-      background: var(--accent);
-      animation: loadSlide 1.2s ease-in-out infinite;
-    }
-
-    @keyframes loadSlide {
-      0% {
-        left: -35%
-      }
-
-      100% {
-        left: 135%
-      }
-    }
-
-    .wl-error {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--red);
-      display: none;
-      padding-top: 4px;
-    }
 
     /* ══════════════════════════════════════════════════
        APP SHELL
     ══════════════════════════════════════════════════ */
     .app {
-      display: none;
+      display: flex;
       height: 100vh;
       flex-direction: column;
-    }
-
-    .app.visible {
-      display: flex;
     }
 
     /* ── HEADER ── */
@@ -2494,76 +2346,7 @@
 
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!-- WELCOME                                                                 -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <div class="welcome" id="welcome">
-    <!-- Logo -->
-    <div class="wl-logo">
-      Cyto <em>Atlas</em>
-      <div class="wl-logo-sep"></div>
-      <span class="wl-logo-sub">How it's made</span>
-    </div>
 
-    <!-- Animation card -->
-    <div class="wl-card">
-      <div class="anim-stage" id="anim-stage">
-
-        <!-- Phase 1: Eyepiece -->
-        <div class="anim-phase" id="ph-eyepiece">
-          <img class="eyepiece-img" src="assets/tile_r0_c0_full.jpg" alt="Eyepiece view">
-          <div class="crop-indicator" id="crop-indicator"></div>
-        </div>
-
-        <!-- Phase 2: Grid -->
-        <div class="anim-phase" id="ph-grid">
-          <div class="tile-grid-wrap">
-            <div class="tile-grid" id="tile-grid"></div>
-          </div>
-          <canvas class="orb-canvas" id="orb-canvas"></canvas>
-        </div>
-
-        <!-- Phase 3: Composite -->
-        <div class="anim-phase" id="ph-composite">
-          <img class="composite-img" id="composite-img" src="assets/Case_20260418_155022_composite_trimmed.jpg"
-            alt="Stitched composite">
-        </div>
-
-        <div class="step-label">
-          <span class="step-num" id="step-num">01</span>
-          <span class="step-text" id="step-text">Capture</span>
-        </div>
-        <button class="replay-btn" id="replay-btn" onclick="anim && anim.replay()">↺ Replay</button>
-      </div>
-
-      <!-- Progress -->
-      <div class="anim-progress">
-        <div class="prog-bar-wrap">
-          <div class="prog-bar" id="prog-bar"></div>
-        </div>
-        <div class="prog-steps">
-          <span class="prog-step active" data-step="0">Capture</span>
-          <span class="prog-dot"></span>
-          <span class="prog-step" data-step="1">Crop</span>
-          <span class="prog-dot"></span>
-          <span class="prog-step" data-step="2">Grid</span>
-          <span class="prog-dot"></span>
-          <span class="prog-step" data-step="3">Match</span>
-          <span class="prog-dot"></span>
-          <span class="prog-step" data-step="4">Composite</span>
-        </div>
-      </div>
-
-      <!-- Enter row -->
-      <div class="wl-enter-row">
-        <span class="wl-hint-text" id="wl-hint">Loading cases…</span>
-        <div class="wl-error" id="wl-error"></div>
-        <button class="wl-enter-btn loading" id="wl-enter" onclick="enterAtlas()" disabled>
-          Open Atlas →
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- APP                                                                    -->
@@ -2731,6 +2514,47 @@
           microscope fields captured through a Samsung Galaxy S25 Ultra mounted on a clinical
           microscope via a universal clip adapter.
         </div>
+
+        <div class="about-anim-wrap">
+          <div class="anim-stage" id="anim-stage">
+            <div class="anim-phase" id="ph-eyepiece">
+              <img class="eyepiece-img" src="assets/tile_r0_c0_full.jpg" alt="Eyepiece view">
+              <div class="crop-indicator" id="crop-indicator"></div>
+            </div>
+            <div class="anim-phase" id="ph-grid">
+              <div class="tile-grid-wrap">
+                <div class="tile-grid" id="tile-grid"></div>
+              </div>
+              <canvas class="orb-canvas" id="orb-canvas"></canvas>
+            </div>
+            <div class="anim-phase" id="ph-composite">
+              <img class="composite-img" id="composite-img" src="assets/Case_20260418_155022_composite_trimmed.jpg"
+                alt="Stitched composite">
+            </div>
+            <div class="step-label">
+              <span class="step-num" id="step-num">01</span>
+              <span class="step-text" id="step-text">Capture</span>
+            </div>
+            <button class="replay-btn" id="replay-btn" onclick="anim && anim.replay()">↺ Replay</button>
+          </div>
+          <div class="anim-progress">
+            <div class="prog-bar-wrap">
+              <div class="prog-bar" id="prog-bar"></div>
+            </div>
+            <div class="prog-steps">
+              <span class="prog-step active" data-step="0">Capture</span>
+              <span class="prog-dot"></span>
+              <span class="prog-step" data-step="1">Crop</span>
+              <span class="prog-dot"></span>
+              <span class="prog-step" data-step="2">Grid</span>
+              <span class="prog-dot"></span>
+              <span class="prog-step" data-step="3">Match</span>
+              <span class="prog-dot"></span>
+              <span class="prog-step" data-step="4">Composite</span>
+            </div>
+          </div>
+        </div>
+
         <div class="about-section-label">How to Use</div>
         <div class="about-text">
           Select a case from the sidebar. Use your mouse wheel or pinch gesture to zoom into
@@ -2961,7 +2785,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      anim = new PipelineAnim(); // Start welcome animation immediately (sync)
       init();                    // Fire main setup (async, loads cases.json in parallel)
     });
 
@@ -3009,18 +2832,10 @@
         document.getElementById('stat-total').textContent = `${CASES.length} cases`;
 
         window.addEventListener('hashchange', () => {
-          // Only respond if the app shell is visible (not on the welcome screen)
-          if (!document.getElementById('app').classList.contains('visible')) return;
           applyHash();
         });
 
-        // Unlock enter button
-        casesReady = true;
-        const btn = document.getElementById('wl-enter');
-        btn.disabled = false;
-        btn.classList.remove('loading');
-        btn.classList.add('visible');
-        document.getElementById('wl-hint').classList.add('ready');
+        applyHash();
 
         // Attach search listener
         document.getElementById('sb-search').addEventListener('input', handleSearch);
@@ -3082,27 +2897,12 @@
         });
 
       } catch (err) {
-        const errEl = document.getElementById('wl-error');
-        errEl.style.display = 'block';
-        errEl.textContent = `Failed to load cases.json: ${err.message}`;
-        const btn = document.getElementById('wl-enter');
-        btn.disabled = false;
-        btn.classList.remove('loading');
-        btn.classList.add('visible');
-        btn.textContent = 'Retry →';
-        btn.onclick = () => location.reload();
+        console.error('Failed to load cases.json:', err);
+        alert('Failed to load cases.json: ' + err.message);
       }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Enter
-    // ─────────────────────────────────────────────────────────────────────────
-    function enterAtlas() {
-      if (!casesReady) return;
-      document.getElementById('welcome').classList.add('hidden');
-      document.getElementById('app').classList.add('visible');
-      applyHash();
-    }
+
 
     function applyHash() {
       const raw = window.location.hash.slice(1); // strip leading '#'
@@ -4375,7 +4175,15 @@ Exact schema:
         .catch(() => prompt('Copy this JSON:', json));
     }
 
-    function openAbout() { document.getElementById('about-overlay').classList.remove('hidden'); }
+    function openAbout() {
+      document.getElementById('about-overlay').classList.remove('hidden');
+      if (!anim) {
+        anim = new PipelineAnim();
+      } else {
+        anim.resizeCanvas();
+        if (!anim.running) anim.replay();
+      }
+    }
     function closeAbout() { document.getElementById('about-overlay').classList.add('hidden'); }
 
     function showToast(msg) {
