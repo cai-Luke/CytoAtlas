@@ -8,8 +8,6 @@ Sister project: HemeAtlas (https://cai-luke.github.io/HemeAtlas)
 
 ## Working with Claude on this repo
 
-index.html is large (~4100 lines). Never re-emit it in full in a chat response.
-Edits should be expressed as targeted str_replace patches (old → new).
 Specs can be delegated to an external agent for implementation.
 
 ---
