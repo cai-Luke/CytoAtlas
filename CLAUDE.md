@@ -20,16 +20,15 @@ CytoAtlas/
 ├── cases.json          ← Case metadata, annotations, interpretation text
 ├── CLAUDE.md           ← This file
 └── assets/
-    ├── tile_r0_c0_full.jpg          ← Eyepiece full-frame (used in welcome animation)
-    ├── tile_r0_c0.jpg … tile_r2_c2.jpg  ← 3×3 tile set (welcome animation)
+    ├── tile_r0_c0_full.jpg          ← Eyepiece full-frame (used in About modal animation)
+    ├── tile_r0_c0.jpg … tile_r2_c2.jpg  ← 3×3 tile set (About modal animation)
     └── Case_*_composite_trimmed.jpg ← Stitched composites (one per case)
 ```
 
-`index.html` is the single canonical file. There is no separate landing page — the welcome
-screen (pipeline animation + "Open Atlas" button) is embedded in `index.html` as a fixed overlay
-that fades out on entry. `index.html` replaced the old `atlas.html` and `index.html` split after
-A/B testing confirmed the minimal welcome (animation only, no hero copy) outperformed the
-full landing page for a repeat-use reference tool.
+`index.html` is the single canonical file. There is no landing page or welcome screen; the
+app drops the user directly into the virtual slide grid (or a specific case if linked).
+The educational pipeline animation is now embedded in the "About" modal. `index.html`
+replaces the old `atlas.html` and `index.html` split.
 
 Pipeline scripts (`stitch_composite_v12.py`, `pull_and_ingest.py`, `ingest_case.py`,
 `trim_composite.py`) live in the PARENT Android app project directory, not in this repo.
@@ -222,12 +221,12 @@ label, response textarea, Prev/Next/Focus/Reveal buttons. "Reveal" toggles the
 
 ---
 
-## Welcome screen (pipeline animation)
+## Pipeline animation (About modal)
 
-The welcome overlay is `position: fixed; inset: 0` inside `index.html`. It fades out when
-the user clicks "Open Atlas →". The animation starts immediately on DOMContentLoaded (no
-intersection observer — it is the only thing on screen). `cases.json` loads in parallel;
-the "Open Atlas →" button shows a loading pulse and is disabled until the fetch resolves.
+The pipeline animation is embedded inside the About modal. It is lazily initialized
+when the user first clicks "ⓘ About" and replays each time the modal is opened.
+`cases.json` loads in parallel with the initial app boot; the app shell is visible
+immediately.
 
 The animation uses real tile images from Case_20260418_155022 (3×3 pleural fluid):
 `assets/tile_r0_c0_full.jpg`, `assets/tile_r0_c0.jpg` through `assets/tile_r2_c2.jpg`,
