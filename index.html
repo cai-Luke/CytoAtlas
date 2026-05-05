@@ -84,7 +84,7 @@
     /* Animation stage */
     .anim-stage {
       width: 100%;
-      aspect-ratio: 4/3;
+      aspect-ratio: 4 / 3;
       background: #040608;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border);
@@ -354,7 +354,8 @@
     ══════════════════════════════════════════════════ */
     .app {
       display: flex;
-      height: 100vh;
+      height: 100vh;     /* fallback */
+      height: 100dvh;    /* dynamic viewport — handles iOS Safari URL bar */
       flex-direction: column;
     }
 
@@ -967,27 +968,44 @@
         width: 100%;
         border-left: none;
         border-top: 1px solid var(--border);
-        flex: 0 0 44vh;
+        flex: 0 0 44vh;     /* fallback for older browsers */
+        flex: 0 0 44dvh;    /* dynamic viewport — accounts for iOS Safari chrome */
       }
 
       .preview-grid {
         padding: 16px;
         gap: 12px;
       }
+    }
 
+    /* Touch-device fixes — applies to phones AND tablets (any coarse-pointer
+       device), not just viewports under 600px. Previously these lived inside
+       @media (max-width: 599px), so iPads couldn't pan the composite
+       (annotation markers absorbed touches) and the info panel wouldn't
+       momentum-scroll on iOS. */
+    @media (hover: none) and (pointer: coarse) {
       /* OSD touch fix: annotation overlays sit above the OSD canvas and absorb
          touch events before they reach the canvas's innerTracker. Setting
          pointer-events: none lets touches fall through to the canvas so panning
          and pinch-zoom work. The chip keeps pointer-events: auto so tapping the
-         numbered badge still fires onclick (click bubbles through the none parent). */
+         numbered badge still fires onclick. */
       .ann-marker { pointer-events: none; }
       .ann-chip   { pointer-events: auto; }
 
       /* Info panel scroll fix: iOS Safari won't momentum-scroll an overflow:auto
          div nested inside overflow:hidden parents. Switching to scroll + the
-         webkit hint reliably enables touch scrolling. */
+         webkit hint reliably enables touch scrolling. min-height:0 ensures the
+         flex child can shrink below its content height so overflow actually
+         engages. */
       .ip-body {
         overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+      }
+
+      /* Same hint for the sidebar list and preview grid. */
+      .sb-list,
+      .preview-grid {
         -webkit-overflow-scrolling: touch;
       }
     }
@@ -2596,7 +2614,7 @@
     let CASES = [], SPECIMEN_TYPES = [], activeFilter = 'All';
     let activeCase = null, viewer = null, overlays = [];
     let pendingAnnIdx = null; // 0-based ann to activate after viewer opens; null = none
-    let casesReady = false, viewerRotation = 0;
+    let viewerRotation = 0;
     const IS_AUTHOR = new URLSearchParams(location.search).has('author');
     const IS_QUIZ = new URLSearchParams(location.search).has('quiz');
 

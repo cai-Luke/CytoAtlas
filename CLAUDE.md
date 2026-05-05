@@ -16,20 +16,17 @@ Specs can be delegated to an external agent for implementation.
 
 ```
 CytoAtlas/
-├── index.html          ← Single-file viewer app (canonical, replaces both old atlas.html and index.html)
+├── index.html          ← Single-file viewer app (canonical)
 ├── cases.json          ← Case metadata, annotations, interpretation text
 ├── CLAUDE.md           ← This file
 └── assets/
-    ├── tile_r0_c0_full.jpg          ← Eyepiece full-frame (used in welcome animation)
-    ├── tile_r0_c0.jpg … tile_r2_c2.jpg  ← 3×3 tile set (welcome animation)
+    ├── tile_r0_c0_full.jpg          ← Eyepiece full-frame (used in About modal animation)
+    ├── tile_r0_c0.jpg … tile_r2_c2.jpg  ← 3×3 tile set (About modal animation)
     └── Case_*_composite_trimmed.jpg ← Stitched composites (one per case)
 ```
 
-`index.html` is the single canonical file. There is no separate landing page — the welcome
-screen (pipeline animation + "Open Atlas" button) is embedded in `index.html` as a fixed overlay
-that fades out on entry. `index.html` replaced the old `atlas.html` and `index.html` split after
-A/B testing confirmed the minimal welcome (animation only, no hero copy) outperformed the
-full landing page for a repeat-use reference tool.
+`index.html` is the canonical entry point. The app drops the user directly into the
+virtual slide grid. The BenchVision pipeline animation is hosted in the "About" modal.
 
 Pipeline scripts (`stitch_composite_v12.py`, `pull_and_ingest.py`, `ingest_case.py`,
 `trim_composite.py`) live in the PARENT Android app project directory, not in this repo.
@@ -155,7 +152,7 @@ indicator updated on every OSD `zoom` event, and a reset button (`goHome()` + ro
 ## Preview grid (empty-state replacement)
 
 When `activeCase === null`, `.viewer-wrap` shows `#preview-grid` — a responsive card grid of
-all filtered cases (sorted by date descending). Cards show the composite JPEG thumbnail, title,
+all filtered cases (sorted by date descending). Cards show the CSS-scaled composite image, title,
 specimen pill, and YYYY-MM date. Clicking a card calls `selectCase(c)`.
 
 `buildPreviewGrid()` exits early (hides the grid) when `activeCase !== null`, so it is safe to
@@ -209,25 +206,28 @@ label, response textarea, Prev/Next/Focus/Reveal buttons. "Reveal" toggles the
 
 ---
 
-## Adding a case
+## Adding a case (Agent Workflow)
 
-1. Run `stitch_composite_v12.py` and `trim_composite.py` on the case directory (done outside this repo).
-2. Copy `{case_id}_composite_trimmed.jpg` to `assets/`.
-3. Add a new entry to `cases.json` with a placeholder `title` (e.g. the specimen type and date),
-   `annotations: []`, and `ai_generated: true`.
-4. Open `?author=true`, select the case, generate annotations with Gemini (this will also
-   write the final title), export JSON, paste back into `cases.json`.
-5. Replace `interpretation`, update `title` if needed, and set `ai_generated: false` once
-   pathologist commentary is confirmed.
+1. **Locate Composite:** Retrieve the relevant `Case_*_composite_trimmed.jpg` from the `pulled_cases/` directory in the parent project.
+2. **Transfer:** Copy the composite to `CytoAtlas/assets/`.
+3. **Generate Metadata:** Use the Gemini authoring prompt logic (TASK 0-2) to generate a `title`, `annotations`, and `interpretation` for the new case ID.
+4. **Merge & Deploy:** Append the new entry to `cases.json` (set `ai_generated: true`), commit to `main`, and push to origin.
+
+## Updating a case (Agent Workflow)
+
+1. **Receive JSON Snippet:** Luke will provide a JSON block for an existing case ID.
+2. **Merge:** Replace the existing entry in `cases.json` with the new snippet.
+3. **Deploy:** Commit to `main` and push to origin to update the live site.
+
+Manual authoring tools (Gemini-driven) are available at `?author=true` for Luke's use. AI-generated fields should have `ai_generated: true` until verified.
 
 ---
 
-## Welcome screen (pipeline animation)
+## Pipeline animation (About modal)
 
-The welcome overlay is `position: fixed; inset: 0` inside `index.html`. It fades out when
-the user clicks "Open Atlas →". The animation starts immediately on DOMContentLoaded (no
-intersection observer — it is the only thing on screen). `cases.json` loads in parallel;
-the "Open Atlas →" button shows a loading pulse and is disabled until the fetch resolves.
+The animation is lazily initialized when the user first clicks "ⓘ About" and replays
+each time the modal is opened. `cases.json` loads in parallel; the app shell is
+visible immediately.
 
 The animation uses real tile images from Case_20260418_155022 (3×3 pleural fluid):
 `assets/tile_r0_c0_full.jpg`, `assets/tile_r0_c0.jpg` through `assets/tile_r2_c2.jpg`,
@@ -235,50 +235,18 @@ and `assets/Case_20260418_155022_composite_trimmed.jpg`.
 
 ---
 
-## Gemini 3.1 Pro Preview API
+## AI Agent Guardrails: API & Model Strings
 
-Model string: `gemini-3.1-pro-preview` (hardcoded in `callGemini()` in `index.html`).
-**`gemini-3.1-pro` (no `-preview` suffix) returns a 404** — the stable release is not yet
-on the AI Studio endpoint. Do not remove the `-preview` suffix.
-If this model is deprecated, update the model string — it is the only change needed.
-The API key is entered by the user at runtime and stored in `localStorage` under
-`cytoatlas_gemini_key`. It is never committed to the repo.
+The following sections contain API details that postdate older training cutoffs or reflect live API testing. Agents tend to "correct" unfamiliar model names to older, more familiar ones. **Do not do this.** 
 
-REST endpoint (verified April 2026):
-https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key={API_KEY}
-`v1beta` is correct for `generateContent`. Do not change the API version segment.
+- `index.html` → `callGemini()` — Uses the `gemini-3.1-pro-preview` model string and the `v1beta` endpoint. Both are intentional and verified working. 
+- The generation config schema (temperature 0.7, no thinkingConfig) is also correct for this specific endpoint.
+- The API key is entered by the user at runtime and stored in `localStorage` under `cytoatlas_gemini_key`. It is never committed to the repo.
 
-Generation config (`callGemini()` in `index.html`): `temperature: 0.7`, no `thinkingConfig`.
-The temperature allows variation across rerolls while staying usable. Do not add a
-`thinkingConfig` block — that constraint applies to a different project (BenchVision), not here.
+**Override Clause:** Do not modify the model name, API version segment, or generation config schema UNLESS the user explicitly instructs you to update them in the current prompt (e.g., "Update the Gemini model to the new stable release"). If there is no explicit instruction to change them, leave them exactly as they are. If you suspect a bug, flag it to Luke rather than making a unilateral change.
 
-Do not substitute any of the following — all are wrong for this endpoint:
-
-| String | Why wrong |
+| Model String (Stable?) | Why it may return 404 |
 |---|---|
-| `gemini-3.1-pro` | No `-preview` suffix → 404 |
-| `gemini-2.5-pro` | Older generation; superseded |
-| `gemini-2.5-pro-preview-05-06` | Preview of an older model; stale |
-| `gemini-2.0-pro-exp` | Two generations behind |
-| `gemini-1.5-pro` | Three generations behind |
-| `gemini-pro` | Alias to a deprecated model |
+| `gemini-3.1-pro` | Stable release may not yet be on the AI Studio endpoint (verified April 2026). |
+| `gemini-2.x` / `1.5` | Older generations; do not "downgrade" to these. |
 
-A 404 on the model string means the name may need updating — not that it should be
-replaced with a known-older one. Flag to Luke.
-
----
-
-## Gemini-Authored / API-Verified Code — Do Not Modify Without Explicit Instruction
-
-The following sections contain API details that postdate Claude's knowledge cutoff
-or reflect live API testing. Do not "correct" model names, endpoint paths, or request
-schemas in these blocks. Each contains an inline comment explaining the decisions made.
-Treat that comment as authoritative and do not second-guess it:
-
-- `index.html` → `callGemini()` — Gemini API call for annotation generation. Uses
-  `gemini-3.1-pro-preview` model string and `v1beta` endpoint. Both are intentional and
-  verified working. Do not change the model name, API version segment, or generation
-  config schema (temperature 0.7, no thinkingConfig).
-
-If a bug is suspected in this function, flag it to Luke rather than making a unilateral
-change. Luke will verify against the live API or consult Gemini directly.
