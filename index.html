@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>CytoAtlas — Body Fluid Cytology Reference</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
@@ -357,6 +357,7 @@
       height: 100vh;     /* fallback */
       height: 100dvh;    /* dynamic viewport — handles iOS Safari URL bar */
       flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom); /* gesture nav bar on Android/iOS */
     }
 
     /* ── HEADER ── */
