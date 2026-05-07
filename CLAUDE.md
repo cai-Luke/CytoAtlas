@@ -8,7 +8,37 @@ Sister project: HemeAtlas (https://cai-luke.github.io/HemeAtlas)
 
 ## Working with Claude on this repo
 
-Specs can be delegated to an external agent for implementation.
+Two delivery paths. Choose before writing any code.
+
+**Direct task → str_replace patches (default)**
+Write targeted before/after blocks
+Use when the change is ≤ ~5 distinct touch points and each edit can be expressed as a
+clear str_replace block with no ambiguity about where it lands.
+
+**Never re-emit `index.html` in full.** If a change is too broad to express as patches,
+that is the signal to write a spec — not to output the whole file.
+
+**Spec → Claude Code**
+Write a spec and deliver it as a downloadable markdown file. Use when:
+- The change spans enough locations that reviewing individual patches is harder than
+  reviewing the implemented result
+- Multiple edits are interdependent and must be understood as a whole
+- The task requires implementation judgment the spec intentionally leaves open
+
+Spec sections (in order): Goal, Files to Modify, Implementation steps, Browser Test
+Steps. Do not include a full-file-replacement instruction — Claude Code decides its
+own edit granularity.
+
+**Truncation protocol**
+`index.html` is ~4,300 lines. When generating a large new block, verify structural
+integrity before delivering — the file must end with `</html>`. If output is truncated,
+stop immediately. Do not silently retry. Report the last successfully written section
+and ask for permission to continue from that seam.
+
+**Claude Code walkthrough (closing deliverable for spec tasks)**
+- Files changed: flat list, one-line description per file
+- Key decisions: non-obvious choices with one-sentence rationale
+- Browser test steps: numbered, each stating what to open and what to observe
 
 ---
 
