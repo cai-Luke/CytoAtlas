@@ -2637,7 +2637,7 @@
     // State
     // ─────────────────────────────────────────────────────────────────────────
     let CASES = [], SPECIMEN_TYPES = [], activeFilter = 'All';
-    let activeCase = null, viewer = null, overlays = [];
+    let activeCase = null, viewer = null, overlays = [], overlayMoveHandler = null;
     let pendingAnnIdx = null; // 0-based ann to activate after viewer opens; null = none
     let viewerRotation = 0;
     const IS_AUTHOR = new URLSearchParams(location.search).has('author');
@@ -3891,44 +3891,63 @@
         el.innerHTML = `<div class="ann-chip">${i + 1}</div>`;
         el.onclick = e => { e.stopPropagation(); highlightAnnotation(i); };
 
-        el.addEventListener('mouseenter', e => {
-          const tt = document.getElementById('ann-tooltip');
-          if (!tt) return;
-          if (IS_QUIZ) {
-            tt.textContent = `Region ${i + 1}`;
-          } else {
-            tt.innerHTML = `<div class="ann-tt-label">${ann.label}</div>${ann.description ? `<div class="ann-tt-desc">${ann.description}</div>` : ''}`;
-          }
-          const wrap = document.getElementById('viewer-wrap');
-          const wrapRect = wrap.getBoundingClientRect();
-          const markerRect = el.getBoundingClientRect();
-          const ttW = 260;
-          const rawLeft = markerRect.left - wrapRect.left;
-          const clampedLeft = Math.min(rawLeft, wrapRect.width - ttW - 8);
-          tt.style.left = Math.max(8, clampedLeft) + 'px';
-          const estH = IS_QUIZ ? 30 : 100;
-          const topAbove = markerRect.top - wrapRect.top - estH - 8;
-          tt.style.top = topAbove < 4
-            ? (markerRect.bottom - wrapRect.top + 8) + 'px'
-            : topAbove + 'px';
-          tt.classList.add('visible');
-        });
-
-        el.addEventListener('mouseleave', () => {
-          document.getElementById('ann-tooltip')?.classList.remove('visible');
-        });
-
         const vpRect = viewer.viewport.imageToViewportRectangle(
           ann.x1 * size.x, ann.y1 * size.y, (ann.x2 - ann.x1) * size.x, (ann.y2 - ann.y1) * size.y
         );
         viewer.addOverlay({ element: el, location: vpRect }); overlays.push(el);
       });
+
+      // Box-wide tooltip: hit-test overlay rects on mousemove (pointer-events:none safe).
+      const wrap = document.getElementById('viewer-wrap');
+      let hoverIdx = -1;
+      const onMove = e => {
+        let found = -1;
+        for (let i = 0; i < overlays.length; i++) {
+          const r = overlays[i].getBoundingClientRect();
+          if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+            found = i; break;
+          }
+        }
+        if (found === hoverIdx) return;
+        hoverIdx = found;
+        const tt = document.getElementById('ann-tooltip');
+        if (!tt) return;
+        if (found === -1) { tt.classList.remove('visible'); return; }
+        const ann = c.annotations[found];
+        const markerRect = overlays[found].getBoundingClientRect();
+        const wrapRect = wrap.getBoundingClientRect();
+        if (IS_QUIZ) {
+          tt.textContent = `Region ${found + 1}`;
+        } else {
+          tt.innerHTML = `<div class="ann-tt-label">${ann.label}</div>${ann.description ? `<div class="ann-tt-desc">${ann.description}</div>` : ''}`;
+        }
+        const ttW = 260;
+        const rawLeft = markerRect.left - wrapRect.left;
+        tt.style.left = Math.max(8, Math.min(rawLeft, wrapRect.width - ttW - 8)) + 'px';
+        const estH = IS_QUIZ ? 30 : 100;
+        const topAbove = markerRect.top - wrapRect.top - estH - 8;
+        tt.style.top = (topAbove < 4 ? markerRect.bottom - wrapRect.top + 8 : topAbove) + 'px';
+        tt.classList.add('visible');
+      };
+      const onLeave = () => {
+        hoverIdx = -1;
+        document.getElementById('ann-tooltip')?.classList.remove('visible');
+      };
+      wrap.addEventListener('mousemove', onMove);
+      wrap.addEventListener('mouseleave', onLeave);
+      overlayMoveHandler = { el: wrap, onMove, onLeave };
+
       updateChipRotations();
     }
 
     function clearOverlays() {
       overlays.forEach(el => { try { viewer.removeOverlay(el); } catch (e) { } }); overlays = [];
       document.getElementById('ann-tooltip')?.classList.remove('visible');
+      if (overlayMoveHandler) {
+        overlayMoveHandler.el.removeEventListener('mousemove', overlayMoveHandler.onMove);
+        overlayMoveHandler.el.removeEventListener('mouseleave', overlayMoveHandler.onLeave);
+        overlayMoveHandler = null;
+      }
     }
 
     function highlightAnnotation(idx) {
