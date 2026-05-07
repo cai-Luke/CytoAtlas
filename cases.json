@@ -1,11 +1,48 @@
 {
   "cases": [
     {
+      "id": "Case_20260430_172418",
+      "title": "Malignant mesothelial cells with vacuolation",
+      "specimen_type": "Pleural",
+      "magnification": "50x",
+      "grid": "4\u00d74",
+      "date": "2026-04-30",
+      "image": "assets/Case_20260430_172418_composite_trimmed.jpg",
+      "annotations": [
+        {
+          "x1": 0.446,
+          "y1": 0.088,
+          "x2": 0.584,
+          "y2": 0.222,
+          "label": "Malignant mesothelial cells",
+          "description": "These cells show typical features of malignancy, including high N:C ratios, irregular nuclear contours, and prominent nucleoli. The prominent cytoplasmic vacuolation is a common feature in malignant mesothelioma, particularly the epithelioid subtype."
+        },
+        {
+          "x1": 0.201,
+          "y1": 0.007,
+          "x2": 0.354,
+          "y2": 0.165,
+          "label": "Malignant mesothelial cells",
+          "description": "Notice the large, pleomorphic cells with abundant cytoplasm and prominent nucleoli. The clustering and three-dimensional arrangement are characteristic of malignant mesothelial cells in fluid cytology."
+        },
+        {
+          "x1": 0.697,
+          "y1": 0.081,
+          "x2": 0.887,
+          "y2": 0.28,
+          "label": "Malignant mesothelial cells",
+          "description": "The presence of numerous, large, atypical cells with prominent nucleoli and cytoplasmic vacuolation strongly suggests a malignant process. The background shows a mix of inflammatory cells, which is common in malignant effusions."
+        }
+      ],
+      "interpretation": "The cytospin preparation from this pleural fluid exhibits a highly cellular smear dominated by large, atypical cells arranged in clusters and singly. These cells display marked pleomorphism, high nuclear-to-cytoplasmic ratios, irregular nuclear contours, and prominent nucleoli. Many cells also exhibit prominent cytoplasmic vacuolation, a feature often seen in malignant mesothelioma. The background contains a mixed inflammatory infiltrate, including neutrophils, lymphocytes, and macrophages. The overall morphological features are highly suggestive of malignant mesothelioma, likely the epithelioid subtype.",
+      "ai_generated": true
+    },
+    {
       "id": "Case_20260423_101252",
       "title": "Purulent effusion, degenerating neutrophils",
       "specimen_type": "Synovial",
-      "magnification": "50×",
-      "grid": "5×5",
+      "magnification": "50\u00d7",
+      "grid": "5\u00d75",
       "date": "2026-04-23",
       "image": "assets/Case_20260423_101252_composite_trimmed.jpg",
       "annotations": [
@@ -25,8 +62,8 @@
       "id": "Case_20260428_085918",
       "title": "Macrophage-predominant pleocytosis, reactive features",
       "specimen_type": "Pleural",
-      "magnification": "50×",
-      "grid": "5×5",
+      "magnification": "50\u00d7",
+      "grid": "5\u00d75",
       "date": "2026-04-28",
       "image": "assets/Case_20260428_085918_composite_trimmed.jpg",
       "annotations": [
@@ -54,8 +91,8 @@
       "id": "Case_20260415_161024",
       "title": "Macrophage-dominant BAL with bronchial lining cells",
       "specimen_type": "BAL",
-      "magnification": "100×",
-      "grid": "3×3",
+      "magnification": "100\u00d7",
+      "grid": "3\u00d73",
       "date": "2026-04-15",
       "image": "assets/Case_20260415_161024_composite_trimmed.jpg",
       "annotations": [
@@ -91,8 +128,8 @@
       "id": "Case_20260418_155022",
       "title": "Reactive large cells, mixed inflammatory background",
       "specimen_type": "Pleural",
-      "magnification": "50×",
-      "grid": "3×3",
+      "magnification": "50\u00d7",
+      "grid": "3\u00d73",
       "date": "2026-04-18",
       "image": "assets/Case_20260418_155022_composite_trimmed.jpg",
       "annotations": [
@@ -128,8 +165,8 @@
       "id": "Case_20260419_141735",
       "title": "Neutrophil-laden mucus strands, acute inflammation",
       "specimen_type": "BAL",
-      "magnification": "50×",
-      "grid": "3×3",
+      "magnification": "50\u00d7",
+      "grid": "3\u00d73",
       "date": "2026-04-19",
       "image": "assets/Case_20260419_141735_composite_trimmed.jpg",
       "annotations": [
