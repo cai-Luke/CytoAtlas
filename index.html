@@ -1102,30 +1102,11 @@
       pointer-events: none; /* pass touch/mouse through to OSD canvas; chip keeps auto */
     }
 
-    .ann-marker[data-n="1"] {
-      border-color: var(--ann1);
-      background: rgba(251, 191, 36, .07);
-    }
-
-    .ann-marker[data-n="2"] {
-      border-color: var(--ann2);
-      background: rgba(52, 211, 153, .07);
-    }
-
-    .ann-marker[data-n="3"] {
-      border-color: var(--ann3);
-      background: rgba(248, 113, 113, .07);
-    }
-
-    .ann-marker[data-n="4"] {
-      border-color: var(--ann4);
-      background: rgba(167, 139, 250, .07);
-    }
-
-    .ann-marker[data-n="5"] {
-      border-color: var(--ann5);
-      background: rgba(56, 189, 248, .07);
-    }
+    .ann-marker[data-n="1"] { border-color: var(--ann1); background: transparent; }
+    .ann-marker[data-n="2"] { border-color: var(--ann2); background: transparent; }
+    .ann-marker[data-n="3"] { border-color: var(--ann3); background: transparent; }
+    .ann-marker[data-n="4"] { border-color: var(--ann4); background: transparent; }
+    .ann-marker[data-n="5"] { border-color: var(--ann5); background: transparent; }
 
     .ann-marker:hover {
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .65));
@@ -1233,6 +1214,17 @@
       line-height: 1.45;
     }
     #ann-tooltip.visible { opacity: 1; }
+
+    #ann-dimmer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 11;
+      background: rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    #ann-dimmer.active { opacity: 1; }
     #ann-tooltip .ann-tt-label {
       font-weight: 600;
       margin-bottom: 4px;
@@ -2429,6 +2421,7 @@
           <div id="osd-viewer" style="display:none"></div>
           <div id="edit-layer" style="display:none"></div>
           <div id="ann-tooltip"></div>
+          <div id="ann-dimmer"></div>
           <div class="viewer-loading hidden" id="viewer-loading">
             <div class="viewer-loading-inner">
               <div class="wl-spinner"></div>
@@ -3820,9 +3813,11 @@
       viewer.addHandler('zoom', () => {
         updateZoomLabel();
         document.getElementById('ann-tooltip')?.classList.remove('visible');
+        document.getElementById('ann-dimmer')?.classList.remove('active');
       });
       viewer.addHandler('pan', () => {
         document.getElementById('ann-tooltip')?.classList.remove('visible');
+        document.getElementById('ann-dimmer')?.classList.remove('active');
       });
       viewer.addHandler('viewport-change', () => {
         updateScaleBar();
@@ -3911,27 +3906,49 @@
         if (found === hoverIdx) return;
         hoverIdx = found;
         const tt = document.getElementById('ann-tooltip');
-        if (!tt) return;
-        if (found === -1) { tt.classList.remove('visible'); return; }
+        const dimmer = document.getElementById('ann-dimmer');
+        if (found === -1) {
+          tt?.classList.remove('visible');
+          dimmer?.classList.remove('active');
+          return;
+        }
         const ann = c.annotations[found];
         const markerRect = overlays[found].getBoundingClientRect();
         const wrapRect = wrap.getBoundingClientRect();
+        // Set tooltip content
         if (IS_QUIZ) {
           tt.textContent = `Region ${found + 1}`;
         } else {
           tt.innerHTML = `<div class="ann-tt-label">${ann.label}</div>${ann.description ? `<div class="ann-tt-desc">${ann.description}</div>` : ''}`;
         }
+        // Position tooltip using real rendered height
         const ttW = 260;
         const rawLeft = markerRect.left - wrapRect.left;
         tt.style.left = Math.max(8, Math.min(rawLeft, wrapRect.width - ttW - 8)) + 'px';
-        const estH = IS_QUIZ ? 30 : 100;
-        const topAbove = markerRect.top - wrapRect.top - estH - 8;
+        const ttH = tt.offsetHeight;
+        const topAbove = markerRect.top - wrapRect.top - ttH - 8;
         tt.style.top = (topAbove < 4 ? markerRect.bottom - wrapRect.top + 8 : topAbove) + 'px';
         tt.classList.add('visible');
+        // Spotlight: dim everything outside the annotation box.
+        // Extend hole upward by chipH so the numbered chip stays visible.
+        if (dimmer) {
+          const chipH = 22;
+          const hL = markerRect.left - wrapRect.left;
+          const hT = markerRect.top - wrapRect.top - chipH;
+          const hW = markerRect.width;
+          const hH = markerRect.height + chipH;
+          const hole = `linear-gradient(#fff,#fff) ${hL}px ${hT}px/${hW}px ${hH}px no-repeat`;
+          dimmer.style.mask = `${hole},linear-gradient(#fff,#fff)`;
+          dimmer.style.maskComposite = 'exclude';
+          dimmer.style.webkitMask = `${hole},linear-gradient(#fff,#fff)`;
+          dimmer.style.webkitMaskComposite = 'destination-out';
+          dimmer.classList.add('active');
+        }
       };
       const onLeave = () => {
         hoverIdx = -1;
         document.getElementById('ann-tooltip')?.classList.remove('visible');
+        document.getElementById('ann-dimmer')?.classList.remove('active');
       };
       wrap.addEventListener('mousemove', onMove);
       wrap.addEventListener('mouseleave', onLeave);
@@ -3943,6 +3960,7 @@
     function clearOverlays() {
       overlays.forEach(el => { try { viewer.removeOverlay(el); } catch (e) { } }); overlays = [];
       document.getElementById('ann-tooltip')?.classList.remove('visible');
+      document.getElementById('ann-dimmer')?.classList.remove('active');
       if (overlayMoveHandler) {
         overlayMoveHandler.el.removeEventListener('mousemove', overlayMoveHandler.onMove);
         overlayMoveHandler.el.removeEventListener('mouseleave', overlayMoveHandler.onLeave);
