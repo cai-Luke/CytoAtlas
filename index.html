@@ -875,11 +875,27 @@
       height: 1.5px;
       background: var(--text3);
       border-radius: 2px;
-      transition: background .12s;
+      transition: transform .22s ease, opacity .22s ease, width .22s ease, background .12s;
     }
 
     .sb-toggle:hover span {
       background: var(--text);
+    }
+
+    /* Desktop only: morph hamburger into a › chevron when sidebar is collapsed */
+    @media (min-width: 1024px) {
+      .sb-toggle.collapsed span:nth-child(1) {
+        transform: rotate(40deg) translate(2px, 5px);
+        width: 55%;
+      }
+      .sb-toggle.collapsed span:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+      .sb-toggle.collapsed span:nth-child(3) {
+        transform: rotate(-40deg) translate(2px, -5px);
+        width: 55%;
+      }
     }
 
     /* Sidebar backdrop */
@@ -2325,6 +2341,7 @@
       object-fit: cover;
       display: block;
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      pointer-events: none;  /* prevent img from eating touch events on iOS */
     }
 
     .case-card-body {
@@ -3192,7 +3209,9 @@
       if (isOverlayMode()) {
         document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
       } else {
-        document.getElementById('sidebar').classList.toggle('collapsed');
+        const sb = document.getElementById('sidebar');
+        sb.classList.toggle('collapsed');
+        document.getElementById('sb-toggle').classList.toggle('collapsed', sb.classList.contains('collapsed'));
       }
     }
     function openSidebar() {
