@@ -882,22 +882,6 @@
       background: var(--text);
     }
 
-    /* Desktop only: morph hamburger into a › chevron when sidebar is collapsed */
-    @media (min-width: 1024px) {
-      .sb-toggle.collapsed span:nth-child(1) {
-        transform: rotate(40deg) translate(2px, 5px);
-        width: 55%;
-      }
-      .sb-toggle.collapsed span:nth-child(2) {
-        opacity: 0;
-        transform: scaleX(0);
-      }
-      .sb-toggle.collapsed span:nth-child(3) {
-        transform: rotate(-40deg) translate(2px, -5px);
-        width: 55%;
-      }
-    }
-
     /* Sidebar backdrop */
     .sb-backdrop {
       display: none;
@@ -915,111 +899,7 @@
       pointer-events: auto;
     }
 
-    @media (min-width: 1024px) {
-      .sidebar {
-        transition: width .22s ease, border-color .22s ease;
-      }
-
-      .sidebar.collapsed {
-        width: 0;
-        border-right-color: transparent;
-      }
-
-      .sidebar.collapsed .sb-section,
-      .sidebar.collapsed .sb-list {
-        opacity: 0;
-        pointer-events: none;
-      }
-    }
-
-    @media (max-width: 1023px) {
-      .sidebar {
-        position: fixed;
-        top: 52px;
-        left: 0;
-        bottom: 0;
-        z-index: 50;
-        transform: translateX(-100%);
-        transition: transform .25s ease;
-        width: 220px;
-        border-right-color: var(--border);
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sb-backdrop {
-        display: block;
-        top: 52px;
-      }
-
-      .info-panel {
-        width: 280px;
-      }
-    }
-
     .sb-filter-wrap { display: none; padding: 4px 8px 6px; flex-wrap: wrap; gap: 5px; }
-
-    @media (max-width: 599px) {
-      .sb-filter-wrap { display: flex; }
-      .stat-pill {
-        display: none;
-      }
-
-      .filter-pills {
-        display: none;
-      }
-
-      .logo-sub {
-        display: none;
-      }
-
-      .logo-sep {
-        display: none;
-      }
-
-      .main {
-        flex-direction: column;
-      }
-
-      .info-panel {
-        width: 100%;
-        border-left: none;
-        border-top: 1px solid var(--border);
-        flex: 0 0 44vh;     /* fallback for older browsers */
-        flex: 0 0 44dvh;    /* dynamic viewport — accounts for iOS Safari chrome */
-      }
-
-      .preview-grid {
-        padding: 16px;
-        gap: 12px;
-      }
-    }
-
-    /* Touch-device fixes — applies to phones AND tablets (any coarse-pointer
-       device), not just viewports under 600px. Previously these lived inside
-       @media (max-width: 599px), so iPads couldn't pan the composite
-       (annotation markers absorbed touches) and the info panel wouldn't
-       momentum-scroll on iOS. */
-    @media (hover: none) and (pointer: coarse) {
-      /* Info panel scroll fix: iOS Safari won't momentum-scroll an overflow:auto
-         div nested inside overflow:hidden parents. Switching to scroll + the
-         webkit hint reliably enables touch scrolling. min-height:0 ensures the
-         flex child can shrink below its content height so overflow actually
-         engages. */
-      .ip-body {
-        overflow-y: scroll;
-        -webkit-overflow-scrolling: touch;
-        min-height: 0;
-      }
-
-      /* Same hint for the sidebar list and preview grid. */
-      .sb-list,
-      .preview-grid {
-        -webkit-overflow-scrolling: touch;
-      }
-    }
 
     /* ── MAIN AREA ── */
     .main {
@@ -2181,19 +2061,6 @@
       user-select: none;
     }
 
-    @media (max-width: 599px) {
-      #viewer-toolbar button,
-      .vt-btn {
-        width: 28px;
-        height: 28px;
-      }
-
-      #viewer-toolbar,
-      .viewer-toolbar {
-        gap: 1px;
-      }
-    }
-
     /* ── SCALE BAR ── */
     #scale-bar {
       position: absolute;
@@ -2374,6 +2241,91 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       color: var(--text4);
+    }
+
+    /* ── MEDIA QUERIES & RESPONSIVE OVERRIDES ── */
+    @media (min-width: 1024px) {
+      .sidebar {
+        transition: width .22s ease, border-color .22s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 0;
+        border-right-color: transparent;
+      }
+
+      .sidebar.collapsed .sb-section,
+      .sidebar.collapsed .sb-list {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      .sidebar {
+        position: fixed;
+        top: 52px;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        width: 220px;
+        border-right-color: var(--border);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sb-backdrop {
+        display: block;
+        top: 52px;
+      }
+
+      .info-panel {
+        width: 280px;
+      }
+    }
+
+    @media (max-width: 599px) {
+      .sb-filter-wrap { display: flex; }
+      .stat-pill { display: none; }
+      .filter-pills { display: none; }
+      .logo-sub { display: none; }
+      .logo-sep { display: none; }
+
+      .main {
+        flex-direction: column;
+      }
+
+      .info-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        flex: 0 0 44vh;
+        flex: 0 0 44dvh;
+      }
+
+      .preview-grid {
+        padding: 16px;
+        gap: 12px;
+      }
+    }
+
+    /* Touch-device fixes — applies to phones AND tablets (any coarse-pointer
+       device), not just viewports under 600px. */
+    @media (hover: none) and (pointer: coarse) {
+      .ip-body {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+      }
+
+      .sb-list,
+      .preview-grid {
+        -webkit-overflow-scrolling: touch;
+      }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js"></script>
