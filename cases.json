@@ -35,7 +35,8 @@
         }
       ],
       "interpretation": "The cytospin preparation from this pleural fluid exhibits a highly cellular smear dominated by large, atypical cells arranged in clusters and singly. These cells display marked pleomorphism, high nuclear-to-cytoplasmic ratios, irregular nuclear contours, and prominent nucleoli. Many cells also exhibit prominent cytoplasmic vacuolation, a feature often seen in malignant mesothelioma. The background contains a mixed inflammatory infiltrate, including neutrophils, lymphocytes, and macrophages. The overall morphological features are highly suggestive of malignant mesothelioma, likely the epithelioid subtype.",
-      "ai_generated": true
+      "ai_generated": true,
+      "survey": true
     },
     {
       "id": "Case_20260423_101252",
@@ -122,7 +123,8 @@
         }
       ],
       "interpretation": "This Bronchoalveolar Lavage (BAL) sample demonstrates a cellular profile dominated by alveolar macrophages, which exhibit characteristic foamy cytoplasm and eccentric nuclei. Occasional clusters of bronchial lining cells (ciliated columnar epithelium) are present, representing sampling of the bronchial mucosa. The background contains moderate amounts of mucinous debris and proteinaceous material, which is typical for a BAL specimen. No malignant cells, fungal elements, or significant acute inflammation are identified in this field.",
-      "ai_generated": true
+      "ai_generated": true,
+      "survey": true
     },
     {
       "id": "Case_20260418_155022",
@@ -159,7 +161,8 @@
         }
       ],
       "interpretation": "This pleural fluid cytospin is highly cellular, featuring a mixed inflammatory background rich in small mature lymphocytes, scattered neutrophils, and numerous red blood cells. Of particular note are several very large, prominent cells with abundant, deeply basophilic cytoplasm and large, sometimes multiple, nuclei. These likely represent reactive mesothelial cells or macrophages, though in a clinical setting, correlation with patient history and potentially further studies would be warranted to exclude a neoplastic process. The overall picture suggests a marked inflammatory or reactive effusion.",
-      "ai_generated": true
+      "ai_generated": true,
+      "survey": true
     },
     {
       "id": "Case_20260419_141735",
