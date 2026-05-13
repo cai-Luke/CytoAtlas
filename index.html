@@ -2327,6 +2327,248 @@
         -webkit-overflow-scrolling: touch;
       }
     }
+
+    /* ══════════════════════════════════════════════════
+       SURVEY MODE
+    ══════════════════════════════════════════════════ */
+
+    /* Survey badge (header) */
+    .survey-badge {
+      display: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--green);
+      border: 1px solid var(--green-dim);
+      background: rgba(74, 222, 128, .08);
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+    .survey-badge.visible { display: block; }
+
+    /* Layout overrides when survey is active */
+    .survey-active .sidebar,
+    .survey-active #sb-toggle { display: none !important; }
+    .survey-active .filter-pills,
+    .survey-active .stat-pill { display: none !important; }
+    .survey-active .main { flex-direction: column; }
+    .survey-active .viewer-wrap { min-height: 0; }
+
+    /* Survey panel — lives inside .main, below viewer-wrap */
+    #survey-panel {
+      flex-shrink: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 20px;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+      max-height: 44dvh;
+    }
+
+    .sp-progress {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text4);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    .sp-confirm {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .sp-decision-btn {
+      flex: 1;
+      min-height: 52px;
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: 2px solid var(--border2);
+      background: transparent;
+      color: var(--text2);
+      transition: all .15s;
+    }
+    .sp-decision-btn.sp-yes { border-color: var(--green); color: var(--green); }
+    .sp-decision-btn.sp-yes.active { background: var(--green-dim); }
+    .sp-decision-btn.sp-no { border-color: var(--red); color: var(--red); }
+    .sp-decision-btn.sp-no.active { background: var(--red-dim); }
+
+    .sp-reason-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text2);
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .sp-reason-item:has(.sp-reason-cb:checked) {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+    .sp-reason-cb { display: none; }
+
+    .sp-other-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
+      margin-top: 4px;
+    }
+    .sp-other-input:focus { border-color: var(--accent); }
+    .sp-other-input::placeholder { color: var(--text4); }
+
+    .sp-submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .sp-submit-btn:hover { background: var(--accent-hover); }
+
+    /* Survey overlays — splash, end, no-cases */
+    .survey-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .survey-overlay.hidden { display: none !important; }
+
+    .survey-splash-panel {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      padding: 32px;
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .survey-splash-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .survey-splash-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .survey-splash-section {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text4);
+      margin-bottom: 12px;
+    }
+
+    .survey-shift-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .survey-shift-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text2);
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .survey-shift-option:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+    .survey-shift-option input[type=radio] { display: none; }
+
+    .survey-begin-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .survey-begin-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .survey-begin-btn:hover:not(:disabled) { background: var(--accent-hover); }
+
+    .survey-back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--accent);
+      font-size: 14px;
+      text-decoration: none;
+    }
+    .survey-back-link:hover { text-decoration: underline; }
+
+    /* Author panel survey toggle */
+    .ap-survey-row {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .ap-survey-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text3);
+      cursor: pointer;
+      user-select: none;
+    }
+    .ap-survey-label input[type=checkbox] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--accent);
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js"></script>
 </head>
@@ -2352,6 +2594,7 @@
       <div class="filter-pills" id="filter-pills"></div>
       <div class="author-badge" id="author-badge">Author Mode</div>
       <div class="quiz-badge" id="quiz-badge">Quiz Mode</div>
+      <div class="survey-badge" id="survey-badge">Survey Mode</div>
       <button class="about-btn" onclick="openAbout()">ⓘ About</button>
     </div>
 
@@ -2404,14 +2647,44 @@
             <button id="ifp-reset">Reset</button>
           </div>
           <div class="viewer-toolbar" id="viewer-toolbar">
-            <button class="vt-btn small" title="Rotate CCW" onclick="rotateViewer(-90)">↺</button>
+            <button id="vt-rotate-ccw" class="vt-btn small" title="Rotate CCW" onclick="rotateViewer(-90)">↺</button>
             <button class="vt-btn" title="Zoom Out" onclick="viewerZoomBy(0.6)">−</button>
             <span class="vt-zoom-label" id="vt-zoom-label">1.0×</span>
             <button class="vt-btn" title="Zoom In" onclick="viewerZoomBy(1.6)">+</button>
-            <button class="vt-btn small" title="Rotate CW" onclick="rotateViewer(90)">↻</button>
+            <button id="vt-rotate-cw" class="vt-btn small" title="Rotate CW" onclick="rotateViewer(90)">↻</button>
             <button class="vt-btn small" title="Reset view" onclick="resetViewer()">⌂</button>
             <button class="vt-btn small" id="ruler-btn" title="Ruler" onclick="toggleMeasureMode()" style="display:none">↔</button>
             <button class="vt-btn small" id="brightness-btn" title="Brightness" onclick="toggleFilterPopover()">☀</button>
+          </div>
+        </div>
+
+        <!-- SURVEY PANEL -->
+        <div id="survey-panel" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="sp-progress" id="sp-progress">Case 1 of 1</span>
+            <span class="sp-confirm" id="sp-confirm" style="display:none;">Response recorded</span>
+          </div>
+          <div id="sp-step1">
+            <div style="font-size:16px; font-weight:600; color:var(--text); line-height:1.4; margin-bottom:14px;">Would you send this case for pathologist review?</div>
+            <div style="display:flex; gap:12px;">
+              <button id="sp-yes-btn" class="sp-decision-btn sp-yes" onclick="surveyClickYes()">Yes</button>
+              <button id="sp-no-btn" class="sp-decision-btn sp-no" onclick="surveyClickNo()">No</button>
+            </div>
+          </div>
+          <div id="sp-step2" style="display:none;">
+            <div style="font-size:13px; font-weight:600; color:var(--text2); margin-bottom:10px;">Why? (select all that apply)</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <label class="sp-reason-item"><input type="checkbox" class="sp-reason-cb" value="Atypia suspect" onchange="onSurveyReasonChange()"><span>Atypia suspect</span></label>
+              <label class="sp-reason-item"><input type="checkbox" class="sp-reason-cb" value="Malignancy suspect" onchange="onSurveyReasonChange()"><span>Malignancy suspect</span></label>
+              <label class="sp-reason-item"><input type="checkbox" class="sp-reason-cb" value="Infectious agents / organisms suspect" onchange="onSurveyReasonChange()"><span>Infectious agents / organisms suspect</span></label>
+              <label class="sp-reason-item"><input type="checkbox" class="sp-reason-cb" value="Unfamiliar morphology" onchange="onSurveyReasonChange()"><span>Unfamiliar morphology</span></label>
+              <label class="sp-reason-item"><input type="checkbox" class="sp-reason-cb" value="Cell clusters / groups" onchange="onSurveyReasonChange()"><span>Cell clusters / groups</span></label>
+              <label class="sp-reason-item"><input type="checkbox" class="sp-reason-cb" value="Other" id="sp-other-cb" onchange="onSurveyReasonChange(); toggleOtherInput(this.checked)"><span>Other</span></label>
+              <input type="text" id="sp-other-text" class="sp-other-input" placeholder="Optional: describe reason (max 100 chars)" maxlength="100" style="display:none;" oninput="surveyOther=this.value.trim()">
+            </div>
+          </div>
+          <div id="sp-submit-row" style="display:none;">
+            <button class="sp-submit-btn" onclick="doSurveySubmit()">Submit</button>
           </div>
         </div>
 
@@ -2458,6 +2731,12 @@
               <button class="ap-btn" id="ap-export" onclick="exportCaseJSON()" disabled>Export JSON</button>
             </div>
             <div class="ap-status" id="ap-status"></div>
+            <div class="ap-survey-row">
+              <label class="ap-survey-label">
+                <input type="checkbox" id="ap-survey-toggle" onchange="if(activeCase){ activeCase.survey=this.checked; document.getElementById('ap-export').disabled=false; }">
+                Survey eligible
+              </label>
+            </div>
           </div>
           <!-- QUIZ PANEL -->
           <div class="quiz-panel" id="quiz-panel">
@@ -2566,6 +2845,7 @@
           <div style="display:flex; gap:6px;">
             <button onclick="toggleAuthorModeURL()" style="background:transparent; border:1px solid var(--border2); color:var(--text4); border-radius:4px; padding:3px 8px; cursor:pointer; font-family:inherit; font-size:10px; transition:all 0.15s;" onmouseover="this.style.color='var(--text)'; this.style.borderColor='var(--accent)';" onmouseout="this.style.color='var(--text4)'; this.style.borderColor='var(--border2)';">Toggle Author Mode</button>
             <button onclick="toggleQuizModeURL()" style="background:transparent; border:1px solid var(--border2); color:var(--text4); border-radius:4px; padding:3px 8px; cursor:pointer; font-family:inherit; font-size:10px; transition:all 0.15s;" onmouseover="this.style.color='var(--text)'; this.style.borderColor='var(--amber)';" onmouseout="this.style.color='var(--text4)'; this.style.borderColor='var(--border2)';">Toggle Quiz Mode</button>
+            <button onclick="toggleSurveyModeURL()" style="background:transparent; border:1px solid var(--border2); color:var(--text4); border-radius:4px; padding:3px 8px; cursor:pointer; font-family:inherit; font-size:10px; transition:all 0.15s;" onmouseover="this.style.color='var(--text)'; this.style.borderColor='var(--green)';" onmouseout="this.style.color='var(--text4)'; this.style.borderColor='var(--border2)';">Toggle Survey Mode</button>
           </div>
         </div>
       </div>
@@ -2573,6 +2853,39 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- SURVEY SPLASH -->
+  <div class="survey-overlay hidden" id="survey-splash">
+    <div class="survey-splash-panel">
+      <div class="survey-splash-title">CytoAtlas Survey</div>
+      <div class="survey-splash-desc">You will be shown a series of body fluid cytology cases. For each case, decide whether you would send it for pathologist review.</div>
+      <div class="survey-splash-section">Select your current shift</div>
+      <div class="survey-shift-options">
+        <label class="survey-shift-option"><input type="radio" name="survey-shift" value="Day (07:00–15:00)" onchange="onShiftSelected()"><span>Day (07:00–15:00)</span></label>
+        <label class="survey-shift-option"><input type="radio" name="survey-shift" value="Evening (15:00–23:00)" onchange="onShiftSelected()"><span>Evening (15:00–23:00)</span></label>
+        <label class="survey-shift-option"><input type="radio" name="survey-shift" value="Night (23:00–07:00)" onchange="onShiftSelected()"><span>Night (23:00–07:00)</span></label>
+      </div>
+      <button class="survey-begin-btn" id="survey-begin-btn" onclick="beginSurvey()" disabled>Begin Survey</button>
+    </div>
+  </div>
+
+  <!-- SURVEY END -->
+  <div class="survey-overlay hidden" id="survey-end">
+    <div class="survey-splash-panel" style="text-align:center;">
+      <div class="survey-splash-title">Survey complete.</div>
+      <div class="survey-splash-desc">Thank you.</div>
+      <a href="index.html" class="survey-back-link">← Back to Atlas</a>
+    </div>
+  </div>
+
+  <!-- SURVEY NO CASES -->
+  <div class="survey-overlay hidden" id="survey-no-cases">
+    <div class="survey-splash-panel" style="text-align:center;">
+      <div class="survey-splash-title">No survey cases available.</div>
+      <div class="survey-splash-desc">Survey cases have not yet been configured. Please check back later.</div>
+      <a href="index.html" class="survey-back-link">← Back to Atlas</a>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- JAVASCRIPT                                                              -->
@@ -2585,13 +2898,25 @@
     let activeCase = null, viewer = null, overlays = [], overlayMoveHandler = null;
     let pendingAnnIdx = null; // 0-based ann to activate after viewer opens; null = none
     let viewerRotation = 0;
-    const IS_AUTHOR = new URLSearchParams(location.search).has('author');
-    const IS_QUIZ = new URLSearchParams(location.search).has('quiz');
+    const _params = new URLSearchParams(location.search);
+    const IS_SURVEY = _params.get('survey') === 'true';
+    const IS_AUTHOR = !IS_SURVEY && _params.has('author');
+    const IS_QUIZ   = !IS_SURVEY && !IS_AUTHOR && _params.has('quiz');
 
     // Quiz session state — reset on each selectCase()
     let quizCurrentIdx = 0;
     let quizResponses  = [];   // string[] — one entry per annotation
     let quizRevealed   = [];   // boolean[] — whether "Reveal" was clicked for each annotation
+
+    // Survey session state
+    let surveyShift   = null;
+    let surveyCases   = [];
+    let surveyIdx     = 0;
+    let surveyDefer   = null;
+    let surveyReasons = new Set();
+    let surveyOther   = '';
+
+    const SURVEY_ENDPOINT = 'https://script.google.com/macros/s/YOUR_ID/exec';
 
     // ─────────────────────────────────────────────────────────────────────────
     // Pipeline Animation
@@ -2782,6 +3107,8 @@
         url.searchParams.delete('author');
       } else {
         url.searchParams.set('author', 'true');
+        url.searchParams.delete('quiz');
+        url.searchParams.delete('survey');
       }
       window.location.href = url.toString();
     }
@@ -2792,7 +3119,20 @@
         url.searchParams.delete('quiz');
       } else {
         url.searchParams.set('quiz', 'true');
-        url.searchParams.delete('author'); // quiz and author are mutually exclusive
+        url.searchParams.delete('author');
+        url.searchParams.delete('survey');
+      }
+      window.location.href = url.toString();
+    }
+
+    function toggleSurveyModeURL() {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('survey') === 'true') {
+        url.searchParams.delete('survey');
+      } else {
+        url.searchParams.set('survey', 'true');
+        url.searchParams.delete('author');
+        url.searchParams.delete('quiz');
       }
       window.location.href = url.toString();
     }
@@ -2805,6 +3145,11 @@
         CASES = data.cases || [];
         SPECIMEN_TYPES = [...new Set(CASES.map(c => c.specimen_type))].sort();
 
+        if (IS_SURVEY) {
+          document.getElementById('survey-badge').classList.add('visible');
+          document.getElementById('app').classList.add('survey-active');
+        }
+
         if (IS_AUTHOR) {
           document.getElementById('author-badge').classList.add('visible');
           const savedKey = localStorage.getItem('cytoatlas_gemini_key');
@@ -2815,18 +3160,16 @@
           document.getElementById('quiz-badge').classList.add('visible');
         }
 
-        buildFilterPills();
-        buildSidebar();
-        document.getElementById('stat-total').textContent = `${CASES.length} cases`;
-
-        window.addEventListener('hashchange', () => {
+        if (!IS_SURVEY) {
+          buildFilterPills();
+          buildSidebar();
+          document.getElementById('stat-total').textContent = `${CASES.length} cases`;
+          window.addEventListener('hashchange', () => { applyHash(); });
           applyHash();
-        });
-
-        applyHash();
-
-        // Attach search listener
-        document.getElementById('sb-search').addEventListener('input', handleSearch);
+          document.getElementById('sb-search').addEventListener('input', handleSearch);
+        } else {
+          initSurveyMode();
+        }
 
         // Wire filter sliders
         document.getElementById('ifp-brightness').addEventListener('input', e => {
@@ -3140,7 +3483,7 @@
       if (editMode) exitEditMode();
       if (isOverlayMode()) closeSidebar();
       activeCase = c;
-      pushHash(c.id);
+      if (!IS_SURVEY) pushHash(c.id);
       if (IS_QUIZ) {
         const n = (c.annotations || []).length;
         quizCurrentIdx = 0;
@@ -3366,6 +3709,7 @@
         document.getElementById('ap-edit').disabled = !has;
         document.getElementById('ap-export').disabled = false; // always available in author mode
         document.getElementById('ap-status').textContent = '';
+        document.getElementById('ap-survey-toggle').checked = !!c.survey;
       } else {
         ap.classList.remove('visible');
       }
@@ -3741,6 +4085,10 @@
         addAnnotationOverlays(activeCase);
         updateChipRotations();
         document.getElementById('viewer-toolbar').classList.add('visible');
+        if (IS_SURVEY) {
+          document.getElementById('vt-rotate-ccw').style.display = 'none';
+          document.getElementById('vt-rotate-cw').style.display = 'none';
+        }
         updateZoomLabel();
         updateScaleBar();
         updateNavCount();
@@ -3829,6 +4177,7 @@
     // Annotation overlays
     // ─────────────────────────────────────────────────────────────────────────
     function addAnnotationOverlays(c) {
+      if (IS_SURVEY) return;
       if (!viewer || !c.annotations || c.annotations.length === 0) return;
       clearOverlays();
       const tiledImage = viewer.world.getItemAt(0), size = tiledImage.getContentSize();
@@ -4212,6 +4561,153 @@ Exact schema:
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // Survey mode
+    // ─────────────────────────────────────────────────────────────────────────
+    function initSurveyMode() {
+      surveyCases = CASES.filter(c => c.survey === true);
+      fisherYatesShuffle(surveyCases);
+
+      if (surveyCases.length === 0) {
+        document.getElementById('survey-no-cases').classList.remove('hidden');
+        return;
+      }
+
+      const storedShift = sessionStorage.getItem('cytoatlas_survey_shift');
+      if (storedShift) {
+        surveyShift = storedShift;
+        surveyIdx = 0;
+        showSurveyCase();
+      } else {
+        document.getElementById('survey-splash').classList.remove('hidden');
+      }
+    }
+
+    function fisherYatesShuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function onShiftSelected() {
+      const selected = document.querySelector('input[name="survey-shift"]:checked');
+      document.getElementById('survey-begin-btn').disabled = !selected;
+    }
+
+    function beginSurvey() {
+      const selected = document.querySelector('input[name="survey-shift"]:checked');
+      if (!selected) return;
+      surveyShift = selected.value;
+      sessionStorage.setItem('cytoatlas_survey_shift', surveyShift);
+      surveyIdx = 0;
+      document.getElementById('survey-splash').classList.add('hidden');
+      showSurveyCase();
+    }
+
+    function showSurveyCase() {
+      surveyDefer = null;
+      surveyReasons = new Set();
+      surveyOther = '';
+
+      const c = surveyCases[surveyIdx];
+      activeCase = c;
+
+      document.getElementById('sp-progress').textContent = `Case ${surveyIdx + 1} of ${surveyCases.length}`;
+      document.getElementById('sp-step1').style.display = '';
+      document.getElementById('sp-step2').style.display = 'none';
+      document.getElementById('sp-submit-row').style.display = 'none';
+      document.getElementById('sp-confirm').style.display = 'none';
+      document.getElementById('sp-yes-btn').classList.remove('active');
+      document.getElementById('sp-no-btn').classList.remove('active');
+      document.querySelectorAll('.sp-reason-cb').forEach(cb => { cb.checked = false; });
+      document.getElementById('sp-other-text').style.display = 'none';
+      document.getElementById('sp-other-text').value = '';
+
+      document.getElementById('survey-panel').style.display = 'flex';
+      loadViewer(c);
+    }
+
+    function surveyClickYes() {
+      surveyDefer = true;
+      document.getElementById('sp-yes-btn').classList.add('active');
+      document.getElementById('sp-no-btn').classList.remove('active');
+      document.getElementById('sp-step2').style.display = '';
+      updateSurveySubmitBtn();
+    }
+
+    function surveyClickNo() {
+      surveyDefer = false;
+      document.getElementById('sp-no-btn').classList.add('active');
+      document.getElementById('sp-yes-btn').classList.remove('active');
+      document.getElementById('sp-step2').style.display = 'none';
+      doSurveySubmit();
+    }
+
+    function onSurveyReasonChange() {
+      surveyReasons = new Set();
+      document.querySelectorAll('.sp-reason-cb:checked').forEach(cb => surveyReasons.add(cb.value));
+      updateSurveySubmitBtn();
+    }
+
+    function toggleOtherInput(checked) {
+      document.getElementById('sp-other-text').style.display = checked ? '' : 'none';
+      if (!checked) { surveyOther = ''; document.getElementById('sp-other-text').value = ''; }
+    }
+
+    function updateSurveySubmitBtn() {
+      document.getElementById('sp-submit-row').style.display = surveyReasons.size > 0 ? '' : 'none';
+    }
+
+    function doSurveySubmit() {
+      const c = surveyCases[surveyIdx];
+      const reasons = surveyDefer ? [...surveyReasons] : [];
+      const otherReason = (surveyDefer && surveyReasons.has('Other')) ? surveyOther : '';
+
+      submitSurveyResponse({
+        timestamp: new Date().toISOString(),
+        shift: surveyShift,
+        case_id: c.id,
+        specimen_type: c.specimen_type,
+        defer: surveyDefer,
+        reasons,
+        other_reason: otherReason
+      });
+
+      document.getElementById('sp-confirm').style.display = '';
+      document.getElementById('sp-step1').style.display = 'none';
+      document.getElementById('sp-step2').style.display = 'none';
+      document.getElementById('sp-submit-row').style.display = 'none';
+
+      setTimeout(advanceSurveyCase, 1500);
+    }
+
+    async function submitSurveyResponse(payload) {
+      try {
+        await fetch(SURVEY_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn('Survey submit error:', err);
+      }
+    }
+
+    function advanceSurveyCase() {
+      surveyIdx++;
+      if (surveyIdx >= surveyCases.length) {
+        if (viewer) { viewer.destroy(); viewer = null; }
+        document.getElementById('osd-viewer').style.display = 'none';
+        document.getElementById('viewer-toolbar').classList.remove('visible');
+        document.getElementById('survey-panel').style.display = 'none';
+        document.getElementById('survey-end').classList.remove('hidden');
+      } else {
+        showSurveyCase();
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // Export / About / Toast
     // ─────────────────────────────────────────────────────────────────────────
     function exportCaseJSON() {
@@ -4220,7 +4716,8 @@ Exact schema:
         id: activeCase.id, title: activeCase.title, specimen_type: activeCase.specimen_type,
         magnification: activeCase.magnification, grid: activeCase.grid, date: activeCase.date,
         image: activeCase.image, annotations: activeCase.annotations,
-        interpretation: activeCase.interpretation, ai_generated: activeCase.ai_generated
+        interpretation: activeCase.interpretation, ai_generated: activeCase.ai_generated,
+        survey: activeCase.survey === true
       }, null, 2);
       navigator.clipboard.writeText(json).then(() => showToast('Case JSON copied to clipboard'))
         .catch(() => prompt('Copy this JSON:', json));
